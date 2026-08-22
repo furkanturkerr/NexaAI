@@ -1,0 +1,591 @@
+@model dynamic
+
+@{
+    Layout = null;
+}
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>NexaAI</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+          rel="stylesheet"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f4f2;
+            color: #151515;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .app {
+            width: calc(100% - 60px);
+            height: calc(100vh - 60px);
+            margin: 30px;
+            background: #fff;
+            border: 2px solid #111;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            border-right: 2px solid #111;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .sidebar-header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 2px solid #111;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .brand span {
+            font-weight: 400;
+            color: #737373;
+        }
+
+        .sidebar-content {
+            padding: 18px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .new-chat {
+            width: 100%;
+            height: 44px;
+            border: 1.5px solid #111;
+            background: #111;
+            color: white;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: .2s;
+        }
+
+        .new-chat:hover {
+            background: #2b2b2b;
+        }
+
+        .sidebar-label {
+            margin-top: 26px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #999;
+        }
+
+        .conversation {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            text-align: left;
+            padding: 11px 12px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 14px;
+            color: #444;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conversation:hover {
+            background: #f2f2ef;
+            color: #111;
+        }
+
+        .conversation.active {
+            background: #ededE9;
+            color: #111;
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e3e3df;
+            padding: 15px 18px;
+        }
+
+        .sidebar-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #111;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profile-name {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .profile-mail {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* RIGHT SIDE */
+
+        .content {
+            display: grid;
+            grid-template-rows: 64px 1fr;
+            min-width: 0;
+        }
+
+        /* HEADER */
+
+        .topbar {
+            border-bottom: 2px solid #111;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px 0 24px;
+        }
+
+        .model-select {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #474747;
+            cursor: pointer;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon-button {
+            width: 38px;
+            height: 38px;
+            border: 0;
+            background: transparent;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .icon-button:hover {
+            background: #f1f1ef;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #111;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* CHAT AREA */
+
+        .chat-area {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .chat-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 50px 30px 150px;
+        }
+
+        .welcome {
+            max-width: 680px;
+            margin: 11vh auto 0;
+        }
+
+        .welcome-badge {
+            width: 42px;
+            height: 42px;
+            background: #111;
+            color: #fff;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 22px;
+            font-size: 19px;
+        }
+
+        .welcome h1 {
+            margin: 0;
+            font-size: clamp(32px, 4vw, 54px);
+            font-weight: 500;
+            letter-spacing: -2.2px;
+            line-height: 1.05;
+        }
+
+        .welcome p {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #858585;
+            max-width: 520px;
+            line-height: 1.6;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+            margin-top: 30px;
+        }
+
+        .quick-button {
+            border: 1px solid #deded9;
+            background: #fff;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #555;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+        .quick-button:hover {
+            border-color: #111;
+            color: #111;
+        }
+
+        /* INPUT */
+
+        .composer-wrapper {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 20px 30px 26px;
+            background: linear-gradient(
+                to top,
+                #fff 70%,
+                rgba(255,255,255,0)
+            );
+        }
+
+        .composer {
+            max-width: 760px;
+            margin: 0 auto;
+            min-height: 62px;
+            border: 1.5px solid #111;
+            border-radius: 16px;
+            background: #fff;
+            display: flex;
+            align-items: flex-end;
+            padding: 9px 10px 9px 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+        }
+
+        .composer textarea {
+            flex: 1;
+            border: 0;
+            outline: 0;
+            resize: none;
+            background: transparent;
+            min-height: 42px;
+            max-height: 140px;
+            padding: 10px 4px;
+            font-size: 14px;
+        }
+
+        .composer-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding-bottom: 1px;
+        }
+
+        .composer-button {
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 17px;
+        }
+
+        .composer-button:hover {
+            background: #f1f1ef;
+        }
+
+        .send-button {
+            background: #111;
+            color: #fff;
+        }
+
+        .send-button:hover {
+            background: #333;
+        }
+
+        .composer-note {
+            text-align: center;
+            max-width: 760px;
+            margin: 8px auto 0;
+            font-size: 10px;
+            color: #aaa;
+        }
+
+        @@media (max-width: 850px) {
+            .app {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border: 0;
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .welcome {
+                margin-top: 7vh;
+            }
+
+            .chat-content {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .composer-wrapper {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- LEFT -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <div class="brand">
+                Nexa<span>AI</span>
+            </div>
+        </div>
+
+        <div class="sidebar-content">
+
+            <button class="new-chat">
+                <i class="bi bi-plus-lg me-2"></i>
+                Yeni sohbet
+            </button>
+
+            <div class="sidebar-label">
+                Son sohbetler
+            </div>
+
+            <button class="conversation active">
+                ASP.NET Core mimarisi
+            </button>
+
+            <button class="conversation">
+                PostgreSQL bağlantısı
+            </button>
+
+            <button class="conversation">
+                SignalR nasıl çalışır?
+            </button>
+
+            <button class="conversation">
+                Clean Architecture notları
+            </button>
+
+            <button class="conversation">
+                JWT authentication
+            </button>
+
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-profile">
+
+                <div class="sidebar-avatar">
+                    FT
+                </div>
+
+                <div>
+                    <div class="profile-name">
+                        Furkan Türker
+                    </div>
+
+                    <div class="profile-mail">
+                        furkan@nexa.ai
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </aside>
+
+
+    <!-- RIGHT -->
+    <main class="content">
+
+        <!-- TOP -->
+        <header class="topbar">
+
+            <div class="model-select">
+                Nexa Assistant
+                <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <div class="topbar-right">
+
+                <button class="icon-button">
+                    <i class="bi bi-moon"></i>
+                </button>
+
+                <div class="avatar">
+                    FT
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- CHAT -->
+        <section class="chat-area">
+
+            <div class="chat-content">
+
+                <div class="welcome">
+
+                    <div class="welcome-badge">
+                        <i class="bi bi-stars"></i>
+                    </div>
+
+                    <h1>
+                        Bugün ne üzerinde<br/>
+                        çalışıyoruz?
+                    </h1>
+
+                    <p>
+                        NexaAI ile soru sorabilir, kod üzerinde çalışabilir
+                        veya sesli bir sohbet başlatabilirsin.
+                    </p>
+
+                    <div class="quick-actions">
+
+                        <button class="quick-button">
+                            <i class="bi bi-code-slash me-1"></i>
+                            Kod hakkında sor
+                        </button>
+
+                        <button class="quick-button">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            Bir konuyu açıkla
+                        </button>
+
+                        <button class="quick-button">
+                            <i class="bi bi-mic me-1"></i>
+                            Sesli konuş
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGE BOX -->
+            <div class="composer-wrapper">
+
+                <div class="composer">
+
+                    <textarea
+                        placeholder="NexaAI'ye bir şey sor..."
+                        rows="1"></textarea>
+
+                    <div class="composer-actions">
+
+                        <button class="composer-button"
+                                title="Sesli mesaj">
+                            <i class="bi bi-mic"></i>
+                        </button>
+
+                        <button class="composer-button send-button"
+                                title="Gönder">
+                            <i class="bi bi-arrow-up"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="composer-note">
+                    NexaAI yanlış bilgiler üretebilir. Önemli bilgileri kontrol edin.
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Folder Include="Mappings\" />
+      <Folder Include="Validators\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\NexaAI.Domain\NexaAI.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MediatR" Version="14.2.0" />
+    </ItemGroup>
+
+</Project>

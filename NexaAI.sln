@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaAI.Domain", "NexaAI.Domain\NexaAI.Domain.csproj", "{5700BEDF-818D-4ADD-B4A3-4E06C24DC726}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaAI.Application", "NexaAI.Application\NexaAI.Application.csproj", "{91322EF9-53DB-42D7-9537-1C028109F061}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaAI.Infrastructure", "NexaAI.Infrastructure\NexaAI.Infrastructure.csproj", "{9279876D-2E64-45C0-B657-FA4D54BBFD90}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaAI.WebApi", "NexaAI.WebApi\NexaAI.WebApi.csproj", "{EBD0FE24-8DB5-49F0-8761-A8872207DE6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexaAI.WebUI", "NexaAI.WebUI\NexaAI.WebUI.csproj", "{47D33D43-6D05-4C3D-921A-FC131BDBA59C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5700BEDF-818D-4ADD-B4A3-4E06C24DC726}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5700BEDF-818D-4ADD-B4A3-4E06C24DC726}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5700BEDF-818D-4ADD-B4A3-4E06C24DC726}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5700BEDF-818D-4ADD-B4A3-4E06C24DC726}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91322EF9-53DB-42D7-9537-1C028109F061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91322EF9-53DB-42D7-9537-1C028109F061}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91322EF9-53DB-42D7-9537-1C028109F061}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91322EF9-53DB-42D7-9537-1C028109F061}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9279876D-2E64-45C0-B657-FA4D54BBFD90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9279876D-2E64-45C0-B657-FA4D54BBFD90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9279876D-2E64-45C0-B657-FA4D54BBFD90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9279876D-2E64-45C0-B657-FA4D54BBFD90}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBD0FE24-8DB5-49F0-8761-A8872207DE6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD0FE24-8DB5-49F0-8761-A8872207DE6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD0FE24-8DB5-49F0-8761-A8872207DE6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD0FE24-8DB5-49F0-8761-A8872207DE6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47D33D43-6D05-4C3D-921A-FC131BDBA59C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47D33D43-6D05-4C3D-921A-FC131BDBA59C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47D33D43-6D05-4C3D-921A-FC131BDBA59C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47D33D43-6D05-4C3D-921A-FC131BDBA59C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
