@@ -1,74 +1,484 @@
 @model NexaAI.WebUI.Dtos.AccountDtos.LoginDto
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     Layout = null;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="tr" data-theme="light">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Giriş Yap</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Giriş Yap | NexaAI</title>
+
+    <script>
+        try {
+            const theme = localStorage.getItem("nexa-theme");
+
+            document.documentElement.dataset.theme =
+                theme === "dark" ? "dark" : "light";
+        } catch (_) {
+        }
+    </script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+          rel="stylesheet"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <link rel="stylesheet" href="~/css/login.css"/>
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-md-5 col-lg-4">
+<div class="auth-shell">
 
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
 
-                    <h3 class="text-center mb-4">Giriş Yap</h3>
+    <!-- LEFT -->
 
-                    <form method="post" asp-controller="Account" asp-action="Login">
+    <section class="left-side">
 
-                        @Html.AntiForgeryToken()
-                        
-                        <div class="mb-3">
-                            <label asp-for="UserNameOrEmail" class="form-label"></label>
-                            <input asp-for="UserNameOrEmail"
-                                   class="form-control"
-                                   placeholder="E-posta adresi" />
-                        </div>
+        <div class="brand">
+            Nexa<span>AI</span>
+        </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Şifre</label>
-                            <input asp-for="Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Şifre" />
-                        </div>
 
-                        <button type="submit"
-                                class="btn btn-primary w-100">
-                            Giriş Yap
-                        </button>
-                        
-                        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="hero">
 
-                    </form>
+            <div class="hero-icon">
+                <i class="bi bi-stars"></i>
+            </div>
 
-                    <div class="text-center mt-3">
-                        <a asp-controller="Account"
-                           asp-action="Register">
-                            Hesabın yok mu? Kayıt ol
-                        </a>
-                    </div>
 
+            <h1>
+                Tekrar<br/>
+                hoş geldin.
+            </h1>
+
+
+            <p>
+                Sohbetlerine kaldığın yerden devam et.
+                NexaAI ile gerçek zamanlı yapay zekâ ve
+                sesli deneyime tek noktadan eriş.
+            </p>
+
+
+            <div class="features">
+
+                <div class="feature">
+                    <i class="bi bi-chat-left-text me-1"></i>
+                    AI Chat
                 </div>
+
+
+                <div class="feature">
+                    <i class="bi bi-lightning me-1"></i>
+                    Real-Time
+                </div>
+
+
+                <div class="feature">
+                    <i class="bi bi-mic me-1"></i>
+                    Voice
+                </div>
+
             </div>
 
         </div>
-    </div>
+
+
+        <div class="left-footer">
+            NexaAI · Real-Time AI Assistant
+        </div>
+
+    </section>
+
+
+
+    <!-- RIGHT -->
+
+    <section class="right-side">
+
+
+        <!-- THEME -->
+
+        <button type="button"
+                class="theme-button"
+                id="themeButton"
+                title="Tema değiştir">
+
+            <i class="bi bi-moon"
+               id="themeIcon"></i>
+
+        </button>
+
+
+
+        <div class="form-box">
+
+            <div class="eyebrow">
+                Hesabına eriş
+            </div>
+
+
+            <h2>
+                Giriş yap
+            </h2>
+
+
+            <div class="description">
+                NexaAI hesabınla devam et.
+            </div>
+
+
+
+            <!-- NORMAL LOGIN -->
+
+            <form method="post"
+                  asp-controller="Account"
+                  asp-action="Login">
+
+                @Html.AntiForgeryToken()
+
+
+                <div asp-validation-summary="All"></div>
+
+
+
+                <!-- USERNAME / EMAIL -->
+
+                <div class="field">
+
+                    <label asp-for="UserNameOrEmail">
+                        Kullanıcı adı veya e-posta
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <input asp-for="UserNameOrEmail"
+                               class="auth-input"
+                               placeholder="Kullanıcı adı veya e-posta"
+                               autocomplete="username"/>
+
+
+                        <i class="bi bi-person field-icon"></i>
+
+                    </div>
+
+
+                    <span asp-validation-for="UserNameOrEmail"></span>
+
+                </div>
+
+
+
+                <!-- PASSWORD -->
+
+                <div class="field">
+
+                    <label asp-for="Password">
+                        Şifre
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <input asp-for="Password"
+                               id="passwordInput"
+                               type="password"
+                               class="auth-input"
+                               placeholder="Şifren"
+                               autocomplete="current-password"/>
+
+
+                        <button type="button"
+                                class="password-toggle"
+                                id="passwordToggle"
+                                title="Şifreyi göster">
+
+                            <i class="bi bi-eye"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <span asp-validation-for="Password"></span>
+
+                </div>
+
+
+
+                <button type="submit"
+                        class="submit-button">
+
+                    Giriş yap
+
+                    <i class="bi bi-arrow-right ms-1"></i>
+
+                </button>
+
+            </form>
+
+
+
+            <!-- OR -->
+
+            <div class="separator">
+                veya
+            </div>
+
+
+
+            <!-- GOOGLE BUTTON -->
+
+            <div class="google-wrapper">
+
+                <div id="googleButton"></div>
+
+            </div>
+
+
+
+            <!-- GOOGLE TOKEN FORM -->
+
+            <form id="googleLoginForm"
+                  asp-controller="Account"
+                  asp-action="GoogleLogin"
+                  method="post"
+                  style="display:none;">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       id="googleCredential"
+                       name="Credential"/>
+
+            </form>
+
+
+
+            <!-- REGISTER -->
+
+            <div class="switch">
+
+                Hesabın yok mu?
+
+                <a asp-controller="Account"
+                   asp-action="Register">
+
+                    Kayıt ol
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    const html =
+        document.documentElement;
+
+    const themeButton =
+        document.getElementById("themeButton");
+
+    const themeIcon =
+        document.getElementById("themeIcon");
+
+    const passwordInput =
+        document.getElementById("passwordInput");
+
+    const passwordToggle =
+        document.getElementById("passwordToggle");
+
+
+    /* =============================
+       THEME
+    ============================== */
+
+    function updateThemeIcon() {
+
+        const isDark =
+            html.dataset.theme === "dark";
+
+        themeIcon.className =
+            isDark
+                ? "bi bi-sun"
+                : "bi bi-moon";
+    }
+
+
+    function toggleTheme() {
+
+        const newTheme =
+            html.dataset.theme === "dark"
+                ? "light"
+                : "dark";
+
+        html.dataset.theme =
+            newTheme;
+
+        localStorage.setItem(
+            "nexa-theme",
+            newTheme
+        );
+
+        updateThemeIcon();
+
+        if (window.google) {
+            renderGoogleButton();
+        }
+    }
+
+
+    themeButton.addEventListener(
+        "click",
+        toggleTheme
+    );
+
+
+    updateThemeIcon();
+
+
+
+    /* =============================
+       PASSWORD SHOW / HIDE
+    ============================== */
+
+    passwordToggle.addEventListener(
+        "click",
+        function () {
+
+            const icon =
+                this.querySelector("i");
+
+
+            if (passwordInput.type === "password") {
+
+                passwordInput.type =
+                    "text";
+
+                icon.className =
+                    "bi bi-eye-slash";
+
+            } else {
+
+                passwordInput.type =
+                    "password";
+
+                icon.className =
+                    "bi bi-eye";
+            }
+        }
+    );
+
+
+
+    /* =============================
+       GOOGLE
+    ============================== */
+
+    function initializeGoogle() {
+
+        google.accounts.id.initialize({
+
+            client_id:
+                '@Configuration["Google:ClientId"]',
+
+            callback:
+                handleGoogleResponse
+
+        });
+
+
+        renderGoogleButton();
+    }
+
+
+    function renderGoogleButton() {
+
+        const container =
+            document.getElementById(
+                "googleButton"
+            );
+
+
+        container.innerHTML =
+            "";
+
+
+        const isDark =
+            html.dataset.theme === "dark";
+
+
+        google.accounts.id.renderButton(
+            container,
+            {
+                type: "standard",
+
+                theme:
+                    isDark
+                        ? "filled_black"
+                        : "outline",
+
+                size: "large",
+
+                text:
+                    "continue_with",
+
+                shape:
+                    "rectangular",
+
+                logo_alignment:
+                    "left",
+
+                width:
+                    380
+            }
+        );
+    }
+
+
+    function handleGoogleResponse(response) {
+
+        const credential =
+            response.credential;
+
+
+        if (!credential) {
+            return;
+        }
+
+
+        document.getElementById(
+            "googleCredential"
+        ).value =
+            credential;
+
+
+        document.getElementById(
+            "googleLoginForm"
+        ).submit();
+    }
+
+</script>
+
+
+<!-- GOOGLE IDENTITY SERVICES -->
+<script src="https://accounts.google.com/gsi/client"
+        async
+        defer
+        onload="initializeGoogle()">
+</script>
 
 </body>
 </html>

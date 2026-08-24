@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Google.Apis.Auth" Version="1.76.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.30" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.30" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.30">

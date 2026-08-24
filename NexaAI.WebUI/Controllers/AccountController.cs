@@ -50,24 +50,7 @@ public class AccountController : Controller
             return View(dto);
         }
         
-        var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(result.Token);
-        
-        var claims = jwtToken.Claims.Select(x => new Claim(x.Type, x.Value)).ToList();
-        
-        claims.Add(new Claim("access_token", result.Token));
-        
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-            new AuthenticationProperties
-            {
-                ExpiresUtc = new DateTimeOffset(jwtToken.ValidTo),
-                AllowRefresh = false
-            });
-        
-        return RedirectToAction("Index", "Default");
+        return await SignInUser(result.Token);
     }
 
     [HttpGet]
@@ -108,5 +91,75 @@ public class AccountController : Controller
         return RedirectToAction(nameof(Login));
     }
     
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GoogleLogin(
+        GoogleLoginDto dto)
+    {
+        var client = _httpClientFactory.CreateClient();
+
+        var response = await client.PostAsJsonAsync("http://localhost:5015/api/Auth/google-login",
+                new
+                {
+                    IdToken = dto.Credential
+                });
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+            ModelState.AddModelError("", error?.Message ?? "Google ile giriş başarısız.");
+
+            return View("Login");
+        }
+
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+
+        if (result == null || !result.Succeeded || string.IsNullOrEmpty(result.Token))
+        {
+            ModelState.AddModelError("", result?.Message ?? "Google ile giriş başarısız.");
+
+            return View("Login");
+        }
+
+        return await SignInUser(result.Token);
+    }
     
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        return RedirectToAction("Login", "Account");
+    }
+    
+    
+    private async Task<IActionResult> SignInUser(string token)
+    {
+        var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+        var claims = jwtToken.Claims.Select(x => new Claim(x.Type, x.Value)).ToList();
+
+        claims.Add(new Claim("access_token", token));
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties
+            {
+                ExpiresUtc =
+                    new DateTimeOffset(jwtToken.ValidTo),
+
+                AllowRefresh = false
+            });
+
+        return RedirectToAction("Index", "Default");
+    }
 }

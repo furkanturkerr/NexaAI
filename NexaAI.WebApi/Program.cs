@@ -8,6 +8,7 @@ using NexaAI.Application.Interfaces.Services;
 using NexaAI.Infrastructure.Authentication;
 using NexaAI.Infrastructure.Identity;
 using NexaAI.Infrastructure.Persistence.Context;
+using NexaAI.WebApi.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +81,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 
 
 var app = builder.Build();
@@ -91,6 +93,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 
 // Sıra önemli

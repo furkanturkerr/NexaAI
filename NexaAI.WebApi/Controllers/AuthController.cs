@@ -41,5 +41,19 @@ namespace NexaAI.WebApi.Controllers
             return Ok(result);
         }
         
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin(
+            GoogleLoginCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (!result.Succeeded)
+            {
+                return Unauthorized(result);
+            }
+
+            return Ok(result);
+        }
+        
     }
 }

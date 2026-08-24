@@ -5,97 +5,448 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="tr" data-theme="light">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Kayıt Ol</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Kayıt Ol | NexaAI</title>
+
+    <script>
+        try {
+            const theme = localStorage.getItem("nexa-theme");
+
+            document.documentElement.dataset.theme =
+                theme === "dark" ? "dark" : "light";
+        } catch (_) {
+        }
+    </script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+          rel="stylesheet"/>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+    <link rel="stylesheet" href="~/css/register.css"/>;
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container">
-    <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-md-6 col-lg-5">
+<div class="auth-shell">
 
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
+    <!-- LEFT -->
 
-                    <h3 class="text-center mb-4">Kayıt Ol</h3>
+    <section class="left-side">
 
-                    <form method="post" asp-controller="Account" asp-action="Register">
+        <div class="brand">
 
-                        @Html.AntiForgeryToken()
+            Nexa<span>AI</span>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Name" class="form-label">Ad</label>
-                                <input asp-for="Name"
-                                       class="form-control"
-                                       placeholder="Ad"/>
-                            </div>
+        </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Surname" class="form-label">Soyad</label>
-                                <input asp-for="Surname"
-                                       class="form-control"
-                                       placeholder="Soyad"/>
-                            </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label"></label>
-                            <input asp-for="Email"
-                                   class="form-control"
-                                   placeholder="E-posta adresi"/>
-                        </div>
+        <div class="hero">
 
-                        <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Şifre</label>
-                            <input asp-for="Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Şifre"/>
-                        </div>
+            <div class="hero-icon">
 
-                        <div class="mb-3">
-                            <label asp-for="ConfirmPassword" class="form-label">
-                                Şifre Tekrar
-                            </label>
+                <i class="bi bi-stars"></i>
 
-                            <input asp-for="ConfirmPassword"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Şifre tekrar"/>
-                        </div>
+            </div>
 
-                        <button type="submit"
-                                class="btn btn-success w-100">
-                            Kayıt Ol
-                        </button>
-                        
-                        <div asp-validation-summary="All" class="text-danger"></div>
 
-                    </form>
+            <h1>
 
-                    <div class="text-center mt-3">
-                        <a asp-controller="Account"
-                           asp-action="Login">
-                            Zaten hesabın var mı? Giriş yap
-                        </a>
-                    </div>
+                Yeni bir<br/>
+                sohbet başlat.
+
+            </h1>
+
+
+            <p>
+
+                NexaAI hesabını oluştur.
+                Yapay zekâ, gerçek zamanlı sohbet
+                ve sesli deneyimi tek bir çalışma
+                alanında kullan.
+
+            </p>
+
+
+            <div class="features">
+
+                <div class="feature">
+
+                    <i class="bi bi-cpu me-1"></i>
+
+                    AI Assistant
 
                 </div>
+
+
+                <div class="feature">
+
+                    <i class="bi bi-broadcast me-1"></i>
+
+                    Real-Time
+
+                </div>
+
+
+                <div class="feature">
+
+                    <i class="bi bi-mic me-1"></i>
+
+                    Voice
+
+                </div>
+
             </div>
 
         </div>
-    </div>
+
+
+        <div class="left-footer">
+
+            NexaAI · Real-Time AI Assistant
+
+        </div>
+
+    </section>
+
+
+    <!-- RIGHT -->
+
+    <section class="right-side">
+
+
+        <button type="button"
+                class="theme-button"
+                id="themeButton"
+                title="Tema değiştir">
+
+            <i class="bi bi-moon"
+               id="themeIcon"></i>
+
+        </button>
+
+
+        <div class="form-box">
+
+            <div class="eyebrow">
+
+                Yeni hesap
+
+            </div>
+
+
+            <h2>
+
+                Kayıt ol
+
+            </h2>
+
+
+            <div class="description">
+
+                Hesabını oluştur ve NexaAI'yi kullanmaya başla.
+
+            </div>
+
+
+            <form method="post"
+                  asp-controller="Account"
+                  asp-action="Register">
+
+                @Html.AntiForgeryToken()
+
+
+                <div asp-validation-summary="All"></div>
+
+
+                <!-- NAME / SURNAME -->
+
+                <div class="name-row">
+
+
+                    <div class="field">
+
+                        <label asp-for="Name">
+
+                            Ad
+
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <input asp-for="Name"
+                                   class="auth-input"
+                                   placeholder="Adın"
+                                   autocomplete="given-name"/>
+
+
+                            <i class="bi bi-person field-icon"></i>
+
+                        </div>
+
+
+                        <span asp-validation-for="Name"></span>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label asp-for="Surname">
+
+                            Soyad
+
+                        </label>
+
+
+                        <div class="input-wrapper">
+
+                            <input asp-for="Surname"
+                                   class="auth-input"
+                                   placeholder="Soyadın"
+                                   autocomplete="family-name"/>
+
+
+                            <i class="bi bi-person field-icon"></i>
+
+                        </div>
+
+
+                        <span asp-validation-for="Surname"></span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="field">
+
+                    <label asp-for="Email">
+
+                        E-posta
+
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <input asp-for="Email"
+                               class="auth-input"
+                               placeholder="ornek@mail.com"
+                               autocomplete="email"/>
+
+
+                        <i class="bi bi-envelope field-icon"></i>
+
+                    </div>
+
+
+                    <span asp-validation-for="Email"></span>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="field">
+
+                    <label asp-for="Password">
+
+                        Şifre
+
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <input asp-for="Password"
+                               id="passwordInput"
+                               type="password"
+                               class="auth-input"
+                               placeholder="Şifren"
+                               autocomplete="new-password"/>
+
+
+                        <button type="button"
+                                class="password-toggle"
+                                data-target="passwordInput">
+
+                            <i class="bi bi-eye"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <span asp-validation-for="Password"></span>
+
+                </div>
+
+
+                <!-- CONFIRM -->
+
+                <div class="field">
+
+                    <label asp-for="ConfirmPassword">
+
+                        Şifre tekrar
+
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <input asp-for="ConfirmPassword"
+                               id="confirmPasswordInput"
+                               type="password"
+                               class="auth-input"
+                               placeholder="Şifreni tekrar gir"
+                               autocomplete="new-password"/>
+
+
+                        <button type="button"
+                                class="password-toggle"
+                                data-target="confirmPasswordInput">
+
+                            <i class="bi bi-eye"></i>
+
+                        </button>
+
+                    </div>
+
+
+                    <span asp-validation-for="ConfirmPassword"></span>
+
+                </div>
+
+
+                <button type="submit"
+                        class="submit-button">
+
+                    Hesap oluştur
+
+                    <i class="bi bi-arrow-right ms-1"></i>
+
+                </button>
+
+            </form>
+
+
+            <div class="switch">
+
+                Zaten hesabın var mı?
+
+                <a asp-controller="Account"
+                   asp-action="Login">
+
+                    Giriş yap
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    const html =
+        document.documentElement;
+
+    const themeButton =
+        document.getElementById("themeButton");
+
+    const themeIcon =
+        document.getElementById("themeIcon");
+
+
+    function updateThemeIcon() {
+
+        const dark =
+            html.dataset.theme === "dark";
+
+        themeIcon.className =
+            dark
+                ? "bi bi-sun"
+                : "bi bi-moon";
+    }
+
+
+    themeButton.addEventListener(
+        "click",
+        function () {
+
+            const newTheme =
+                html.dataset.theme === "dark"
+                    ? "light"
+                    : "dark";
+
+            html.dataset.theme =
+                newTheme;
+
+            localStorage.setItem(
+                "nexa-theme",
+                newTheme
+            );
+
+            updateThemeIcon();
+        }
+    );
+
+
+    updateThemeIcon();
+
+
+    document
+        .querySelectorAll(".password-toggle")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const input =
+                        document.getElementById(
+                            this.dataset.target
+                        );
+
+                    const icon =
+                        this.querySelector("i");
+
+
+                    if (input.type === "password") {
+
+                        input.type =
+                            "text";
+
+                        icon.className =
+                            "bi bi-eye-slash";
+
+                    } else {
+
+                        input.type =
+                            "password";
+
+                        icon.className =
+                            "bi bi-eye";
+                    }
+                }
+            );
+
+        });
+
+</script>
 
 </body>
 </html>
