@@ -1,0 +1,85 @@
+@model NexaAI.WebUI.Dtos.ConversationDtos.ConversationDetailDto
+
+<div class="conversation-view show">
+
+    <div class="conversation-heading">
+
+        <div class="conversation-heading-label">
+            Sohbet
+        </div>
+
+        <h2 class="conversation-title">
+            @Model.Title
+        </h2>
+
+    </div>
+
+
+    <div class="chat-content"
+         id="chatContent">
+
+        <div class="messages"
+             id="messages">
+
+            @foreach (var message in Model.Messages)
+            {
+                if (message.Role == 1)
+                {
+                    <div class="message user">
+                        @message.Content
+                    </div>
+                }
+                else
+                {
+                    <div class="message ai">
+                        @message.Content
+                    </div>
+                }
+            }
+
+        </div>
+
+
+        @if (!Model.Messages.Any())
+        {
+            <div class="empty-conversation">
+
+                Bu sohbette henüz gösterilecek
+                mesaj yok.
+
+            </div>
+        }
+
+    </div>
+
+    <div class="composer-area">
+        <form asp-controller="Message" asp-action="Send" method="post" class="composer">
+        
+            <input type="hidden"
+                   name="ConversationId"
+                   value="@Model.Id" />
+
+            <textarea name="Content"
+                  id="messageInput"
+                  rows="1"
+                  placeholder="NexaAI'ye bir şey sor..."
+                  required></textarea>
+
+            <div class="composer-buttons">
+                <button type="button"
+                        class="composer-button"
+                        title="Sesli mesaj">
+                    <i class="bi bi-mic"></i>
+                </button>
+
+                <button type="submit"
+                        class="composer-button"
+                        title="Gönder">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>

@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Persistence\Repositories\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\NexaAI.Application\NexaAI.Application.csproj" />
       <ProjectReference Include="..\NexaAI.Domain\NexaAI.Domain.csproj" />
     </ItemGroup>

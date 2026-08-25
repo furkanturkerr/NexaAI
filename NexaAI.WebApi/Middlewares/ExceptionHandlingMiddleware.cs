@@ -31,13 +31,15 @@ public class ExceptionMiddleware
                 Errors = errors
             });
         }
-        catch (Exception)
+        catch (Exception exception)
         {
             context.Response.StatusCode = 500;
 
             await context.Response.WriteAsJsonAsync(new
             {
-                Message = "Beklenmeyen bir hata oluştu."
+                Message = string.IsNullOrWhiteSpace(exception.Message)
+                    ? "Beklenmeyen bir hata oluştu."
+                    : exception.Message
             });
         }
     }

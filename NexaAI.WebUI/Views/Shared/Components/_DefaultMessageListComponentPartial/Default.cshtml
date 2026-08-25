@@ -1,0 +1,79 @@
+@model List<NexaAI.WebUI.Dtos.ConversationDtos.ResultConversationDto>
+
+<style>
+    .conversation-row {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .conversation-row .conversation {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .conversation-row form {
+        flex-shrink: 0;
+    }
+
+    .conversation-delete {
+        width: 32px;
+        height: 32px;
+
+        border: 0;
+        border-radius: 7px;
+
+        background: transparent;
+        color: var(--text-muted);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 13px;
+    }
+
+    .conversation-delete:hover {
+        background: var(--surface-soft);
+        color: var(--danger);
+    }
+</style>
+
+<div class="sidebar-label">
+    Son sohbetler
+</div>
+
+@foreach (var item in Model)
+{
+    <div class="conversation-row">
+
+        <a asp-controller="Default"
+           asp-action="Index"
+           asp-route-conversationId="@item.Id"
+           class="conversation">
+
+            @item.Title
+
+        </a>
+
+        <form asp-controller="Conversation"
+              asp-action="Delete"
+              method="post"
+              onsubmit="return confirm('Bu sohbeti silmek istediğine emin misin?');">
+
+            <input type="hidden"
+                   name="conversationId"
+                   value="@item.Id" />
+
+            <button type="submit"
+                    class="conversation-delete"
+                    title="Sohbeti sil">
+
+                <i class="bi bi-trash3"></i>
+
+            </button>
+
+        </form>
+
+    </div>
+}

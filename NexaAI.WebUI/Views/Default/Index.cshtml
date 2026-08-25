@@ -1,9 +1,15 @@
 @{
-Layout = null;
+    Layout = null;
+
+    Guid? selectedConversationId =
+        ViewBag.ConversationId is Guid id
+            ? id
+            : null;
 }
 
 <!DOCTYPE html>
 <html lang="tr" data-theme="light">
+
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -12,8 +18,11 @@ Layout = null;
     <script>
         try {
             const savedTheme = localStorage.getItem("nexa-theme");
+
             document.documentElement.dataset.theme =
-                savedTheme === "dark" ? "dark" : "light";
+                savedTheme === "dark"
+                    ? "dark"
+                    : "light";
         } catch (_) {
         }
     </script>
@@ -41,6 +50,7 @@ Layout = null;
             --primary: #111111;
             --primary-text: #ffffff;
 
+            --danger: #d94c4c;
             --shadow: rgba(0, 0, 0, .07);
         }
 
@@ -60,6 +70,7 @@ Layout = null;
             --primary: #f4f4f4;
             --primary-text: #111111;
 
+            --danger: #ef6868;
             --shadow: rgba(0, 0, 0, .35);
         }
 
@@ -84,19 +95,13 @@ Layout = null;
                 BlinkMacSystemFont,
                 "Segoe UI",
                 sans-serif;
-
-            transition:
-                background .2s ease,
-                color .2s ease;
         }
 
         button,
+        input,
         textarea {
             font-family: inherit;
         }
-
-
-        /* APP */
 
         .app {
             width: calc(100vw - 60px);
@@ -113,9 +118,6 @@ Layout = null;
 
             overflow: hidden;
         }
-
-
-        /* SIDEBAR */
 
         .sidebar {
             min-width: 0;
@@ -163,9 +165,6 @@ Layout = null;
             overflow-x: hidden;
         }
 
-
-        /* NEW CHAT */
-
         .new-chat {
             width: 100%;
             height: 44px;
@@ -187,8 +186,106 @@ Layout = null;
             transform: translateY(-1px);
         }
 
+        .new-chat-panel {
+            display: none;
 
-        /* CONVERSATIONS */
+            margin-top: 10px;
+            padding: 12px;
+
+            border: 1px solid var(--soft-border);
+            border-radius: 9px;
+
+            background: var(--surface-soft);
+        }
+
+        .new-chat-panel.show {
+            display: block;
+        }
+
+        .new-chat-label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: var(--text-soft);
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .new-chat-input {
+            width: 100%;
+            height: 40px;
+
+            padding: 0 11px;
+
+            border: 1px solid var(--soft-border);
+            border-radius: 7px;
+
+            outline: none;
+
+            background: var(--surface);
+            color: var(--text);
+
+            font-size: 12px;
+        }
+
+        .new-chat-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .new-chat-input:focus {
+            border-color: var(--border);
+        }
+
+        .new-chat-actions {
+            display: flex;
+            justify-content: flex-end;
+
+            gap: 6px;
+
+            margin-top: 9px;
+        }
+
+        .new-chat-cancel,
+        .new-chat-create {
+            height: 32px;
+
+            padding: 0 11px;
+
+            border: 0;
+            border-radius: 7px;
+
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .new-chat-cancel {
+            background: transparent;
+            color: var(--text-soft);
+        }
+
+        .new-chat-cancel:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+
+        .new-chat-create {
+            background: var(--primary);
+            color: var(--primary-text);
+        }
+
+        .conversation-error {
+            margin-top: 10px;
+            padding: 9px 10px;
+
+            border: 1px solid rgba(217, 76, 76, .35);
+            border-radius: 7px;
+
+            color: var(--danger);
+
+            font-size: 10px;
+        }
 
         .sidebar-label {
             margin-top: 27px;
@@ -206,6 +303,8 @@ Layout = null;
         .conversation {
             width: 100%;
 
+            display: block;
+
             padding: 10px 11px;
             margin-bottom: 3px;
 
@@ -216,6 +315,8 @@ Layout = null;
             color: var(--text-soft);
 
             text-align: left;
+            text-decoration: none;
+
             font-size: 13px;
 
             white-space: nowrap;
@@ -233,11 +334,9 @@ Layout = null;
         .conversation.active {
             background: var(--surface-hover);
             color: var(--text);
+
             font-weight: 550;
         }
-
-
-        /* SIDEBAR USER */
 
         .sidebar-footer {
             min-height: 66px;
@@ -290,15 +389,14 @@ Layout = null;
         }
 
         .user-mail {
-            font-size: 10px;
             color: var(--text-muted);
+
+            font-size: 10px;
         }
 
         .logout-icon {
             width: 34px;
             height: 34px;
-
-            flex-shrink: 0;
 
             border: 0;
             border-radius: 8px;
@@ -314,12 +412,9 @@ Layout = null;
         }
 
         .logout-icon:hover {
-            color: #d94c4c;
+            color: var(--danger);
             background: var(--surface-soft);
         }
-
-
-        /* CONTENT */
 
         .content {
             min-width: 0;
@@ -331,16 +426,10 @@ Layout = null;
             overflow: hidden;
         }
 
-
-        /* TOPBAR */
-
         .topbar {
             position: relative;
 
-            min-width: 0;
             height: 64px;
-
-            flex-shrink: 0;
 
             border-bottom: 2px solid var(--border);
 
@@ -410,15 +499,13 @@ Layout = null;
             color: var(--text);
 
             text-align: left;
+
             font-size: 12px;
         }
 
         .assistant-menu button:hover {
             background: var(--surface-soft);
         }
-
-
-        /* TOP RIGHT */
 
         .topbar-right {
             display: flex;
@@ -442,16 +529,11 @@ Layout = null;
             justify-content: center;
 
             font-size: 17px;
-
-            transition: .15s ease;
         }
 
         .top-icon:hover {
             background: var(--surface-soft);
         }
-
-
-        /* PROFILE */
 
         .profile-wrapper {
             position: relative;
@@ -473,8 +555,6 @@ Layout = null;
 
             font-size: 12px;
             font-weight: 700;
-
-            transition: .15s ease;
         }
 
         .profile-button:hover {
@@ -523,8 +603,9 @@ Layout = null;
         .profile-menu-mail {
             margin-top: 2px;
 
-            font-size: 11px;
             color: var(--text-muted);
+
+            font-size: 11px;
         }
 
         .profile-menu-item {
@@ -540,12 +621,13 @@ Layout = null;
 
             display: flex;
             align-items: center;
+
             gap: 9px;
 
-            text-decoration: none;
+            font-size: 12px;
             text-align: left;
 
-            font-size: 12px;
+            text-decoration: none;
         }
 
         .profile-menu-item:hover {
@@ -553,53 +635,37 @@ Layout = null;
         }
 
         .profile-menu-item.logout {
-            color: #d94c4c;
+            color: var(--danger);
         }
 
-
-        /* CHAT AREA */
-
-        .chat-area {
+        .main-area {
             position: relative;
 
             min-width: 0;
             min-height: 0;
 
-            display: flex;
-            flex-direction: column;
-
             overflow: hidden;
         }
 
+        .default-home {
+            width: 100%;
+            height: 100%;
 
-        /* ONLY THIS AREA SCROLLS */
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-        .chat-content {
-            flex: 1;
-
-            min-width: 0;
-            min-height: 0;
-
-            overflow-y: auto;
-            overflow-x: hidden;
-
-            padding: 45px 35px 145px;
-
-            scrollbar-width: thin;
+            padding: 40px;
         }
 
-
-        /* WELCOME */
-
-        .welcome {
-            max-width: 680px;
-
-            margin: 10vh auto 0;
+        .default-home-inner {
+            width: 100%;
+            max-width: 650px;
         }
 
-        .welcome-icon {
-            width: 42px;
-            height: 42px;
+        .home-icon {
+            width: 44px;
+            height: 44px;
 
             margin-bottom: 22px;
 
@@ -615,68 +681,126 @@ Layout = null;
             font-size: 18px;
         }
 
-        .welcome h1 {
+        .default-home h1 {
             margin: 0;
 
-            font-size: clamp(38px, 4vw, 55px);
+            font-size: clamp(42px, 4vw, 58px);
             font-weight: 650;
 
             line-height: 1;
-            letter-spacing: -2.7px;
+            letter-spacing: -3px;
         }
 
-        .welcome p {
-            max-width: 530px;
+        .default-home p {
+            max-width: 520px;
 
-            margin-top: 17px;
+            margin-top: 18px;
+            margin-bottom: 0;
 
             color: var(--text-soft);
 
-            font-size: 15px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .conversation-view {
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            min-height: 0;
+        }
+
+        .conversation-heading {
+            flex-shrink: 0;
+
+            padding: 20px 32px 14px;
+
+            border-bottom: 1px solid var(--soft-border);
+        }
+
+        .conversation-heading-label {
+            margin-bottom: 4px;
+
+            color: var(--text-muted);
+
+            font-size: 9px;
+            font-weight: 700;
+
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+
+        .conversation-title {
+            margin: 0;
+
+            font-size: 18px;
+            font-weight: 650;
+
+            letter-spacing: -.5px;
+        }
+
+        .chat-content {
+            flex: 1;
+
+            min-height: 0;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            padding: 30px 35px 145px;
+        }
+
+        .messages {
+            width: 100%;
+            max-width: 760px;
+
+            margin: 0 auto;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 20px;
+        }
+
+        .message {
+            max-width: 80%;
+
+            padding: 12px 15px;
+
+            border-radius: 14px;
+
+            font-size: 14px;
             line-height: 1.6;
         }
 
+        .message.user {
+            align-self: flex-end;
 
-        /* QUICK ACTIONS */
-
-        .quick-actions {
-            margin-top: 28px;
-
-            display: flex;
-            flex-wrap: wrap;
-
-            gap: 8px;
+            background: var(--primary);
+            color: var(--primary-text);
         }
 
-        .quick-action {
-            height: 40px;
+        .message.ai {
+            align-self: flex-start;
 
-            padding: 0 13px;
+            background: var(--surface-soft);
+            color: var(--text);
+        }
 
-            border: 1px solid var(--soft-border);
-            border-radius: 9px;
+        .empty-conversation {
+            max-width: 760px;
 
-            background: var(--surface);
-            color: var(--text-soft);
+            margin: 11vh auto 0;
 
-            display: flex;
-            align-items: center;
-            gap: 7px;
+            color: var(--text-muted);
+
+            text-align: center;
 
             font-size: 12px;
-
-            transition: .15s ease;
         }
-
-        .quick-action:hover {
-            color: var(--text);
-            border-color: var(--border);
-
-            transform: translateY(-1px);
-        }
-
-
-        /* COMPOSER */
 
         .composer-area {
             position: absolute;
@@ -715,13 +839,6 @@ Layout = null;
             align-items: flex-end;
 
             box-shadow: 0 10px 35px var(--shadow);
-
-            transition: .2s ease;
-        }
-
-        .composer:focus-within {
-            box-shadow: 0 14px 45px var(--shadow);
-            transform: translateY(-2px);
         }
 
         .composer textarea {
@@ -771,8 +888,6 @@ Layout = null;
             justify-content: center;
 
             font-size: 17px;
-
-            transition: .15s;
         }
 
         .composer-button:hover {
@@ -792,63 +907,14 @@ Layout = null;
         .composer-note {
             margin-top: 7px;
 
-            text-align: center;
-
             color: var(--text-muted);
+
+            text-align: center;
 
             font-size: 9px;
         }
 
-
-        /* EXAMPLE MESSAGE STYLE */
-
-        .messages {
-            width: 100%;
-            max-width: 760px;
-
-            margin: 0 auto;
-
-            display: flex;
-            flex-direction: column;
-
-            gap: 20px;
-        }
-
-        .message {
-            max-width: 80%;
-
-            padding: 12px 15px;
-
-            border-radius: 14px;
-
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .message.user {
-            align-self: flex-end;
-
-            background: var(--primary);
-            color: var(--primary-text);
-        }
-
-        .message.ai {
-            align-self: flex-start;
-
-            background: var(--surface-soft);
-            color: var(--text);
-        }
-
-
-        /* MOBILE */
-
         @@media (max-width: 850px) {
-
-            html,
-            body {
-                overflow: hidden;
-            }
-
             .app {
                 width: 100vw;
                 height: 100vh;
@@ -862,6 +928,10 @@ Layout = null;
 
             .sidebar {
                 display: none;
+            }
+
+            .default-home {
+                padding: 25px;
             }
 
             .chat-content {
@@ -881,9 +951,6 @@ Layout = null;
 
 <div class="app">
 
-
-    <!-- SIDEBAR -->
-
     <aside class="sidebar">
 
         <div class="sidebar-header">
@@ -894,46 +961,77 @@ Layout = null;
 
         </div>
 
-
         <div class="sidebar-content">
 
-            <button class="new-chat"
-                    id="newChatButton">
+            <form method="post"
+                  asp-controller="Conversation"
+                  asp-action="Create"
+                  id="createConversationForm">
 
-                <i class="bi bi-plus-lg me-2"></i>
+                @Html.AntiForgeryToken()
 
-                Yeni sohbet
+                <button type="button"
+                        class="new-chat"
+                        id="newChatButton">
 
-            </button>
+                    <i class="bi bi-plus-lg me-2"></i>
 
+                    Yeni sohbet
 
-            <div class="sidebar-label">
-                Son sohbetler
-            </div>
+                </button>
 
+                <div class="new-chat-panel"
+                     id="newChatPanel">
 
-            <button class="conversation active">
-                ASP.NET Core mimarisi
-            </button>
+                    <label class="new-chat-label"
+                           for="conversationTitle">
 
-            <button class="conversation">
-                PostgreSQL bağlantısı
-            </button>
+                        Sohbet başlığı
 
-            <button class="conversation">
-                SignalR nasıl çalışır?
-            </button>
+                    </label>
 
-            <button class="conversation">
-                Clean Architecture notları
-            </button>
+                    <input type="text"
+                           id="conversationTitle"
+                           name="Title"
+                           class="new-chat-input"
+                           placeholder="Başlık ne olsun?"
+                           maxlength="80"
+                           autocomplete="off"
+                           required/>
 
-            <button class="conversation">
-                JWT authentication
-            </button>
+                    <div class="new-chat-actions">
+
+                        <button type="button"
+                                class="new-chat-cancel"
+                                id="cancelChatButton">
+
+                            Vazgeç
+
+                        </button>
+
+                        <button type="submit"
+                                class="new-chat-create">
+
+                            Oluştur
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+            @if (TempData["ConversationError"] != null)
+            {
+                <div class="conversation-error">
+                    @TempData["ConversationError"]
+                </div>
+            }
+
+            @await Component.InvokeAsync("_DefaultMessageListComponentPartial", new { selectedConversationId })
 
         </div>
-
 
         <div class="sidebar-footer">
 
@@ -957,7 +1055,6 @@ Layout = null;
 
             </div>
 
-
             <form asp-controller="Account"
                   asp-action="Logout"
                   method="post">
@@ -978,21 +1075,14 @@ Layout = null;
 
     </aside>
 
-
-
-    <!-- CONTENT -->
-
     <main class="content">
-
-
-        <!-- HEADER -->
 
         <header class="topbar">
 
-
             <div class="assistant-select">
 
-                <button class="assistant-button"
+                <button type="button"
+                        class="assistant-button"
                         id="assistantButton">
 
                     Nexa Assistant
@@ -1001,21 +1091,20 @@ Layout = null;
 
                 </button>
 
-
                 <div class="assistant-menu"
                      id="assistantMenu">
 
-                    <button>
+                    <button type="button">
                         <i class="bi bi-stars me-2"></i>
                         Nexa Assistant
                     </button>
 
-                    <button>
+                    <button type="button">
                         <i class="bi bi-code-slash me-2"></i>
                         Code Assistant
                     </button>
 
-                    <button>
+                    <button type="button">
                         <i class="bi bi-mic me-2"></i>
                         Voice Assistant
                     </button>
@@ -1024,11 +1113,10 @@ Layout = null;
 
             </div>
 
-
             <div class="topbar-right">
 
-
-                <button class="top-icon"
+                <button type="button"
+                        class="top-icon"
                         id="themeButton"
                         title="Tema değiştir">
 
@@ -1037,16 +1125,15 @@ Layout = null;
 
                 </button>
 
-
                 <div class="profile-wrapper">
 
-                    <button class="profile-button"
+                    <button type="button"
+                            class="profile-button"
                             id="profileButton">
 
                         FT
 
                     </button>
-
 
                     <div class="profile-menu"
                          id="profileMenu">
@@ -1063,8 +1150,8 @@ Layout = null;
 
                         </div>
 
-
-                        <button class="profile-menu-item">
+                        <button type="button"
+                                class="profile-menu-item">
 
                             <i class="bi bi-person"></i>
 
@@ -1072,8 +1159,8 @@ Layout = null;
 
                         </button>
 
-
-                        <button class="profile-menu-item">
+                        <button type="button"
+                                class="profile-menu-item">
 
                             <i class="bi bi-gear"></i>
 
@@ -1081,8 +1168,8 @@ Layout = null;
 
                         </button>
 
-
-                        <button class="profile-menu-item"
+                        <button type="button"
+                                class="profile-menu-item"
                                 id="profileThemeButton">
 
                             <i class="bi bi-circle-half"></i>
@@ -1091,10 +1178,11 @@ Layout = null;
 
                         </button>
 
-
                         <form asp-controller="Account"
                               asp-action="Logout"
                               method="post">
+
+                            @Html.AntiForgeryToken()
 
                             <button type="submit"
                                     class="profile-menu-item logout">
@@ -1115,132 +1203,38 @@ Layout = null;
 
         </header>
 
+        <section class="main-area">
 
+            @if (selectedConversationId == null)
+            {
+                <div class="default-home">
 
-        <!-- CHAT AREA -->
+                    <div class="default-home-inner">
 
-        <section class="chat-area">
+                        <div class="home-icon">
 
+                            <i class="bi bi-stars"></i>
 
-            <!-- ONLY THIS DIV SCROLLS -->
+                        </div>
 
-            <div class="chat-content"
-                 id="chatContent">
+                        <h1>
+                            NexaAI'ye<br/>
+                            hoş geldin.
+                        </h1>
 
-
-                <!-- EMPTY CHAT WELCOME -->
-
-                <div class="welcome"
-                     id="welcomeArea">
-
-                    <div class="welcome-icon">
-                        <i class="bi bi-stars"></i>
-                    </div>
-
-
-                    <h1>
-                        Bugün ne üzerinde<br/>
-                        çalışıyoruz?
-                    </h1>
-
-
-                    <p>
-                        NexaAI ile soru sorabilir, kod üzerinde çalışabilir
-                        veya sesli bir sohbet başlatabilirsin.
-                    </p>
-
-
-                    <div class="quick-actions">
-
-                        <button class="quick-action"
-                                data-prompt="Bu kodu analiz eder misin?">
-
-                            <i class="bi bi-code-slash"></i>
-
-                            Kod hakkında sor
-
-                        </button>
-
-
-                        <button class="quick-action"
-                                data-prompt="Bu konuyu basit ve anlaşılır şekilde açıklar mısın?">
-
-                            <i class="bi bi-lightbulb"></i>
-
-                            Bir konuyu açıkla
-
-                        </button>
-
-
-                        <button class="quick-action"
-                                data-prompt="Sesli bir sohbet başlatmak istiyorum.">
-
-                            <i class="bi bi-mic"></i>
-
-                            Sesli konuş
-
-                        </button>
+                        <p>
+                            Devam etmek için soldaki sohbetlerinden
+                            birini seç veya yeni bir sohbet oluştur.
+                        </p>
 
                     </div>
 
                 </div>
-
-
-                <!-- MESAJLAR SONRA BURAYA BASILACAK -->
-
-                <div class="messages"
-                     id="messages">
-
-                </div>
-
-            </div>
-
-
-
-            <!-- FIXED COMPOSER -->
-
-            <div class="composer-area">
-
-                <div class="composer">
-
-                    <textarea id="messageInput"
-                              rows="1"
-                              placeholder="NexaAI'ye bir şey sor..."></textarea>
-
-
-                    <div class="composer-buttons">
-
-                        <button class="composer-button"
-                                type="button"
-                                title="Sesli mesaj">
-
-                            <i class="bi bi-mic"></i>
-
-                        </button>
-
-
-                        <button class="composer-button send-button"
-                                type="button"
-                                id="sendButton"
-                                title="Gönder">
-
-                            <i class="bi bi-arrow-up"></i>
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="composer-note">
-
-                    NexaAI yanlış bilgiler üretebilir.
-                    Önemli bilgileri kontrol edin.
-
-                </div>
-
-            </div>
+            }
+            else
+            {
+                @await Component.InvokeAsync("_ConversationDetailComponentPartial", new { conversationId = selectedConversationId.Value })
+            }
 
         </section>
 
@@ -1248,9 +1242,7 @@ Layout = null;
 
 </div>
 
-
 <script>
-
     const html =
         document.documentElement;
 
@@ -1275,26 +1267,17 @@ Layout = null;
     const assistantMenu =
         document.getElementById("assistantMenu");
 
-    const messageInput =
-        document.getElementById("messageInput");
-
     const newChatButton =
         document.getElementById("newChatButton");
 
-    const sendButton =
-        document.getElementById("sendButton");
+    const newChatPanel =
+        document.getElementById("newChatPanel");
 
-    const messages =
-        document.getElementById("messages");
+    const cancelChatButton =
+        document.getElementById("cancelChatButton");
 
-    const chatContent =
-        document.getElementById("chatContent");
-
-    const welcomeArea =
-        document.getElementById("welcomeArea");
-
-
-    /* THEME */
+    const conversationTitleInput =
+        document.getElementById("conversationTitle");
 
     function updateThemeIcon() {
 
@@ -1306,7 +1289,6 @@ Layout = null;
                 ? "bi bi-sun"
                 : "bi bi-moon";
     }
-
 
     function toggleTheme() {
 
@@ -1326,24 +1308,17 @@ Layout = null;
         updateThemeIcon();
     }
 
-
     themeButton.addEventListener(
         "click",
         toggleTheme
     );
-
 
     profileThemeButton.addEventListener(
         "click",
         toggleTheme
     );
 
-
     updateThemeIcon();
-
-
-
-    /* PROFILE */
 
     profileButton.addEventListener(
         "click",
@@ -1361,10 +1336,6 @@ Layout = null;
         }
     );
 
-
-
-    /* ASSISTANT MENU */
-
     assistantButton.addEventListener(
         "click",
         function (event) {
@@ -1381,10 +1352,6 @@ Layout = null;
         }
     );
 
-
-
-    /* CLOSE MENUS */
-
     document.addEventListener(
         "click",
         function () {
@@ -1399,181 +1366,40 @@ Layout = null;
         }
     );
 
-
-
-    /* CONVERSATIONS */
-
-    document
-        .querySelectorAll(".conversation")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    document
-                        .querySelectorAll(".conversation")
-                        .forEach(x =>
-                            x.classList.remove("active")
-                        );
-
-                    this.classList.add("active");
-                }
-            );
-
-        });
-
-
-
-    /* QUICK ACTIONS */
-
-    document
-        .querySelectorAll(".quick-action")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                function () {
-
-                    messageInput.value =
-                        this.dataset.prompt;
-
-                    messageInput.focus();
-                }
-            );
-
-        });
-
-
-
-    /* NEW CHAT */
-
     newChatButton.addEventListener(
         "click",
         function () {
 
-            document
-                .querySelectorAll(".conversation")
-                .forEach(x =>
-                    x.classList.remove("active")
-                );
-
-            messages.innerHTML = "";
-
-            welcomeArea.style.display =
-                "block";
-
-            messageInput.value = "";
-
-            messageInput.focus();
-
-            chatContent.scrollTop = 0;
-        }
-    );
-
-
-
-    /* DEMO MESSAGE */
-
-    function addMessage(
-        text,
-        type
-    ) {
-
-        const message =
-            document.createElement("div");
-
-        message.classList.add(
-            "message",
-            type
-        );
-
-        message.textContent =
-            text;
-
-        messages.appendChild(
-            message
-        );
-
-        welcomeArea.style.display =
-            "none";
-
-        chatContent.scrollTop =
-            chatContent.scrollHeight;
-    }
-
-
-
-    /* SEND */
-
-    sendButton.addEventListener(
-        "click",
-        function () {
-
-            const message =
-                messageInput
-                    .value
-                    .trim();
-
-            if (!message)
-                return;
-
-
-            addMessage(
-                message,
-                "user"
-            );
-
-
-            messageInput.value =
-                "";
-
-            messageInput.focus();
-
-
-            /*
-                SignalR bağlandığında
-                buradaki demo cevabı silersin.
-            */
-
-            setTimeout(
-                function () {
-
-                    addMessage(
-                        "Bu alan daha sonra gerçek AI cevabı olacak.",
-                        "ai"
-                    );
-
-                },
-                500
-            );
-        }
-    );
-
-
-
-    /* ENTER */
-
-    messageInput.addEventListener(
-        "keydown",
-        function (event) {
+            newChatPanel
+                .classList
+                .toggle("show");
 
             if (
-                event.key === "Enter" &&
-                !event.shiftKey
+                newChatPanel
+                    .classList
+                    .contains("show")
             ) {
-
-                event.preventDefault();
-
-                sendButton.click();
+                conversationTitleInput.focus();
             }
         }
     );
 
-</script>
+    cancelChatButton.addEventListener(
+        "click",
+        function () {
 
+            newChatPanel
+                .classList
+                .remove("show");
+
+            conversationTitleInput.value =
+                "";
+        }
+    );
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

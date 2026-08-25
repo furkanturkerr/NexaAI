@@ -1,0 +1,461 @@
+GOOGLE LOGIN – MANTIK VE MİMARİ NOTLARI
+
+Google ile giriş işleminde amaç, kullanıcının Google şifresini bizim uygulamamızın yönetmemesidir.
+
+Temel akış:
+
+Kullanıcı
+↓
+Google ile giriş yapar
+↓
+Google kullanıcıyı doğrular
+↓
+Google ID Token üretir
+↓
+NexaAI backend ID Token'ı doğrular
+↓
+Kullanıcı kendi veritabanımızda bulunur / oluşturulur
+↓
+NexaAI kendi JWT'sini üretir
+↓
+Kullanıcı artık NexaAI JWT ile sisteme erişir
+
+
+--------------------------------------------------
+1. GOOGLE NEYİ DOĞRULUYOR?
+--------------------------------------------------
+
+Google'ın görevi:
+
+"Bu kişi gerçekten bu Google hesabının sahibi mi?"
+
+Kullanıcı Google tarafında:
+
+- E-posta
+- Şifre
+- Gerekirse 2FA
+- Google hesap güvenliği
+
+gibi kontrollerden geçer.
+
+Biz kullanıcının Google şifresini hiçbir zaman görmeyiz.
+
+Google doğrulama başarılı olduğunda bize bir ID Token verir.
+
+Bu token kabaca şunu ifade eder:
+
+"Ben Google'ım.
+Bu kullanıcıyı doğruladım.
+Bu kullanıcının Google kimliği şu.
+E-posta adresi şu.
+Bu token şu uygulama için üretildi."
+
+
+--------------------------------------------------
+2. BİZ NEYİ DOĞRULUYORUZ?
+--------------------------------------------------
+
+Frontend'den gelen bir veriye direkt güvenemeyiz.
+
+Bir kullanıcı bize kendisi:
+
+"Ben example@gmail.com kullanıcısıyım."
+
+diyebilir.
+
+Bu yüzden backend tarafında Google'ın verdiği ID Token doğrulanır.
+
+Kontrol edilen temel bilgiler:
+
+- Token gerçekten Google tarafından mı imzalanmış?
+- Token'ın imzası geçerli mi?
+- Token'ın süresi dolmuş mu?
+- Issuer gerçekten Google mı?
+- Audience bizim Google Client ID'miz mi?
+
+Audience kontrolü önemlidir.
+
+Çünkü token gerçek bir Google token'ı olsa bile başka bir uygulama için
+üretilmiş olabilir.
+
+Biz sadece kendi Client ID'miz için üretilmiş token'ları kabul ederiz.
+
+
+Kısaca:
+
+Google:
+"Bu kişi gerçekten kim?"
+
+Bizim backend:
+"Google'ın bana gönderdiği bu kimlik kanıtı gerçekten geçerli mi?"
+
+
+--------------------------------------------------
+3. GOOGLE ID TOKEN NEDİR?
+--------------------------------------------------
+
+Google ID Token, Google tarafından imzalanmış bir kimlik kanıtıdır.
+
+İçerisinde örneğin:
+
+- sub
+- email
+- given_name
+- family_name
+- exp
+- iss
+- aud
+
+gibi bilgiler bulunabilir.
+
+Önemli:
+
+ID Token frontend'de decode edildi diye güvenilir hale gelmez.
+
+Mutlaka backend tarafında doğrulanmalıdır.
+
+
+--------------------------------------------------
+4. SUB NEDİR?
+--------------------------------------------------
+
+"sub", Google kullanıcısının Google tarafındaki benzersiz kimliğidir.
+
+Örnek:
+
+sub = 108293847293847293847
+
+E-posta yerine kullanıcıyı Google hesabıyla kalıcı olarak eşleştirmek için
+sub değeri daha güvenilir bir kimliktir.
+
+Çünkü e-posta bazı durumlarda değişebilir ancak sub Google hesabının
+benzersiz kimliğidir.
+
+
+--------------------------------------------------
+5. NEDEN GOOGLE TOKEN'IYLA DEVAM ETMİYORUZ?
+--------------------------------------------------
+
+Google sadece kullanıcının Google kimliğini doğrular.
+
+Google bizim uygulamamızdaki şu bilgileri bilmez:
+
+- NexaAI UserId
+- Roller
+- Yetkiler
+- Conversation kayıtları
+- Abonelik bilgileri
+- Uygulamaya özel claim'ler
+- Uygulama içi erişim kuralları
+
+Bu yüzden Google doğrulaması tamamlandıktan sonra kullanıcının kendi
+sistemimizdeki AppUser kaydını buluruz.
+
+Yoksa oluştururuz.
+
+Sonra kendi NexaAI JWT'mizi üretiriz.
+
+
+--------------------------------------------------
+6. NEDEN KENDİ JWT'MİZİ ÜRETİYORUZ?
+--------------------------------------------------
+
+Google ID Token:
+
+"Kullanıcının Google kimliği budur."
+
+der.
+
+NexaAI JWT ise:
+
+"Bu kullanıcının NexaAI içindeki kimliği ve yetkileri bunlardır."
+
+der.
+
+Örnek NexaAI JWT claim'leri:
+
+UserId = bizim veritabanındaki Id
+Email = user@email.com
+Name = Furkan
+Surname = Türker
+Role = User
+
+Bundan sonraki API isteklerinde tekrar Google'a gitmek zorunda kalmayız.
+
+NexaAI kendi JWT'sini doğrular.
+
+
+Akış:
+
+Google ID Token
+↓
+Kimlik doğrulama için kullanılır
+↓
+AppUser bulunur
+↓
+NexaAI JWT üretilir
+↓
+Uygulama içindeki sonraki isteklerde NexaAI JWT kullanılır
+
+
+--------------------------------------------------
+7. PASAPORT ÖRNEĞİ
+--------------------------------------------------
+
+Google = Pasaportu veren devlet
+
+Google ID Token = Pasaport
+
+NexaAI Backend = Pasaportun gerçek olup olmadığını kontrol eden görevli
+
+NexaAI JWT = İçeri girdikten sonra verilen şirket kartı / otel bilekliği
+
+
+Yani:
+
+Google bize kişinin kim olduğunu kanıtlar.
+
+Biz Google'ın verdiği kanıtın gerçek olup olmadığını kontrol ederiz.
+
+Daha sonra kullanıcıya kendi sistemimizde kullanacağı NexaAI JWT'yi veririz.
+
+
+--------------------------------------------------
+8. CLEAN ARCHITECTURE TARAFI
+--------------------------------------------------
+
+Google'a özel kodların Application katmanına taşınmasını istemiyoruz.
+
+Application:
+
+IGoogleAuthService
+GoogleLoginCommand
+GoogleLoginCommandHandler
+LoginResult / GoogleUserResult
+
+gibi uygulamanın ihtiyacını tanımlayan yapıları bilir.
+
+
+Infrastructure:
+
+GoogleAuthService
+Google SDK
+UserManager<AppUser>
+Google token doğrulama işlemleri
+
+gibi teknolojiye özel detayları bilir.
+
+
+Bağımlılık:
+
+Application
+    ↑
+Infrastructure
+
+Infrastructure, Application'daki interface'i implement eder.
+
+Application Google SDK'sını doğrudan bilmez.
+
+
+Örnek:
+
+Application:
+
+IGoogleAuthService
+        ↑
+        |
+Infrastructure:
+GoogleAuthService
+
+
+Handler:
+
+GoogleLoginCommand
+↓
+GoogleLoginCommandHandler
+↓
+IGoogleAuthService
+↓
+Google kullanıcısını doğrula
+↓
+IJwtService
+↓
+NexaAI JWT üret
+
+
+--------------------------------------------------
+9. NORMAL LOGIN VE GOOGLE LOGIN FARKI
+--------------------------------------------------
+
+Normal Login:
+
+Email / Username + Password
+↓
+ASP.NET Identity
+↓
+Kullanıcı doğrulanır
+↓
+AppUser
+↓
+NexaAI JWT
+
+
+Google Login:
+
+Google hesabı
+↓
+Google kullanıcıyı doğrular
+↓
+Google ID Token
+↓
+Backend token'ı doğrular
+↓
+AppUser bulunur / oluşturulur
+↓
+NexaAI JWT
+
+
+İkisinin ortak noktası:
+
+AppUser
+↓
+IJwtService
+↓
+NexaAI JWT
+
+
+--------------------------------------------------
+10. SOFTCHAT'TEKİ YÖNTEM İLE FARKI
+--------------------------------------------------
+
+SoftChat projesinde ASP.NET Core External Authentication kullanılmıştı.
+
+Akış:
+
+Google ile giriş butonu
+↓
+ExternalLogin action
+↓
+Challenge(...)
+↓
+Google sayfasına yönlendirme
+↓
+Google Callback
+↓
+ExternalLoginInfo
+↓
+Kullanıcı bul / oluştur
+↓
+JWT üret
+
+
+NexaAI'de kullanılan yaklaşım:
+
+Google Identity Services
+↓
+Google butonu
+↓
+response.credential
+↓
+Google ID Token
+↓
+WebApi
+↓
+GoogleAuthService
+↓
+Token doğrulama
+↓
+AppUser
+↓
+NexaAI JWT
+
+
+SoftChat yönteminde ASP.NET Core:
+
+Challenge
+Callback
+ExternalLoginInfo
+ProviderKey
+
+gibi external login işlemlerinin büyük bölümünü yönetir.
+
+
+NexaAI yönteminde ise Google ID Token doğrudan backend'e gönderilir ve
+backend tarafında doğrulanır.
+
+
+--------------------------------------------------
+11. JUNIOR SEVİYEDE BİLMEM GEREKENLER
+--------------------------------------------------
+
+Google Login kodlarını ezbere yazmak gerekli değildir.
+
+Bilmem gereken temel konular:
+
+1. Google kullanıcının kendi Google hesabını doğrular.
+
+2. Google doğrulama başarılı olursa ID Token üretir.
+
+3. Frontend'den gelen ID Token'a direkt güvenilmez.
+
+4. ID Token backend tarafında doğrulanır.
+
+5. Token'ın imzası, süresi, issuer ve audience bilgileri kontrol edilir.
+
+6. Client ID uygulamayı Google tarafında tanımlar.
+
+7. Google kullanıcısı kendi AppUser kaydımızla eşleştirilir.
+
+8. Kullanıcı yoksa ilk Google girişinde oluşturulabilir.
+
+9. Google token'ı uygulamanın kendi authorization sistemi yerine
+   kullanılmak zorunda değildir.
+
+10. Google doğrulamasından sonra kendi JWT'mizi üretiriz.
+
+11. Kendi JWT'miz uygulamaya özel UserId, role ve claim bilgilerini taşır.
+
+12. Clean Architecture'da Google SDK gibi teknoloji detayları
+    Infrastructure katmanında tutulur.
+
+
+--------------------------------------------------
+12. MÜLAKATTA KISA ANLATIM
+--------------------------------------------------
+
+"Google Login işleminde kullanıcının şifresini uygulamam yönetmiyor.
+Kullanıcı Google tarafından doğrulanıyor ve Google bir ID Token üretiyor.
+
+Frontend'den gelen bu token'a direkt güvenmediğim için backend tarafında
+token'ın imzasını, süresini, issuer bilgisini ve bizim Client ID'miz için
+üretilip üretilmediğini doğruluyorum.
+
+Token geçerliyse kullanıcının kendi sistemimdeki AppUser kaydını buluyor,
+yoksa oluşturuyorum.
+
+Sonrasında Google token'ıyla uygulama içinde devam etmek yerine kendi
+NexaAI JWT'mi üretiyorum. Böylece UserId, roller ve uygulamaya özel
+claim'leri kendi authentication yapım üzerinden yönetebiliyorum.
+
+Clean Architecture tarafında da Google'a özgü doğrulama kodlarını
+Infrastructure katmanında tutup Application tarafını IGoogleAuthService
+abstraction'ına bağımlı bıraktım."
+
+
+--------------------------------------------------
+13. EN KISA HATIRLATMA
+--------------------------------------------------
+
+Google:
+"Kullanıcı gerçekten kim?"
+
+Backend:
+"Google'ın verdiği kanıt gerçekten geçerli mi?"
+
+NexaAI JWT:
+"Bu kişinin benim uygulamamdaki kimliği ve yetkileri ne?"
+
+
+Google ID Token = Kimlik kanıtı
+
+NexaAI JWT = Uygulama içindeki erişim kartı
