@@ -8,4 +8,5 @@ public interface IConversationRepository
     Task<List<Conversation>> GetConversationsAsync(string userId);
     Task<Conversation?> GetByIdAsync(Guid id);
     Task UpdateAsync(Conversation conversation);
+    Task DeleteAsync(Conversation conversation);
 }

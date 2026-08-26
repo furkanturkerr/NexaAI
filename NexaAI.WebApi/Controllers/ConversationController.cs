@@ -49,5 +49,13 @@ namespace NexaAI.WebApi.Controllers
             await _mediator.Send(command);
             return Ok();
         }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            await _mediator.Send(new DeleteConversationCommand(id));
+            return Ok();
+        }
     }
 }

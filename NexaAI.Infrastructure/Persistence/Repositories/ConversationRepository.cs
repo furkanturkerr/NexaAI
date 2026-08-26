@@ -24,6 +24,7 @@ public class ConversationRepository : IConversationRepository
     {
         var values = await _context.Conversations
             .Where(x => x.UserId == userId)
+            .Where(x => !x.IsDeleted)
             .OrderByDescending(x => x.UpdatedAt)
             .ToListAsync();
         return values;
@@ -37,6 +38,12 @@ public class ConversationRepository : IConversationRepository
 
     public async Task UpdateAsync(Conversation conversation)
     {
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Conversation conversation)
+    {
+        conversation.IsDeleted = true;
         await _context.SaveChangesAsync();
     }
 }

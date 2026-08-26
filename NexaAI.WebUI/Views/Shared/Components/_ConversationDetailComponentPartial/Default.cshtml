@@ -1,6 +1,14 @@
+@using Markdig
 @model NexaAI.WebUI.Dtos.ConversationDtos.ConversationDetailDto
 
-<div class="conversation-view show">
+@{
+    var markdownPipeline = new MarkdownPipelineBuilder()
+        .UseAdvancedExtensions()
+        .DisableHtml()
+        .Build();
+}
+
+<div class="conversation-view">
 
     <div class="conversation-heading">
 
@@ -14,72 +22,102 @@
 
     </div>
 
-
     <div class="chat-content"
          id="chatContent">
 
-        <div class="messages"
-             id="messages">
+        @if (Model.Messages.Any())
+        {
+            <div class="messages"
+                 id="messages">
 
-            @foreach (var message in Model.Messages)
-            {
-                if (message.Role == 1)
+                @foreach (var message in Model.Messages)
                 {
-                    <div class="message user">
-                        @message.Content
-                    </div>
+                    if (message.Role == 1)
+                    {
+                        <div class="message user">
+                            <div class="user-message-content">@message.Content</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="message ai">
+                            <div class="ai-content">
+                                @Html.Raw(
+                                    Markdown.ToHtml(
+                                        message.Content,
+                                        markdownPipeline))
+                            </div>
+                        </div>
+                    }
                 }
-                else
-                {
-                    <div class="message ai">
-                        @message.Content
-                    </div>
-                }
-            }
 
-        </div>
-
-
-        @if (!Model.Messages.Any())
+            </div>
+        }
+        else
         {
             <div class="empty-conversation">
-
-                Bu sohbette henüz gösterilecek
-                mesaj yok.
-
+                Bu sohbette henüz gösterilecek mesaj yok.
             </div>
         }
 
     </div>
 
     <div class="composer-area">
-        <form asp-controller="Message" asp-action="Send" method="post" class="composer">
-        
+
+        <form asp-controller="Message"
+              asp-action="Send"
+              method="post"
+              class="composer">
+
             <input type="hidden"
                    name="ConversationId"
-                   value="@Model.Id" />
+                   value="@Model.Id"/>
 
             <textarea name="Content"
-                  id="messageInput"
-                  rows="1"
-                  placeholder="NexaAI'ye bir şey sor..."
-                  required></textarea>
+                      id="messageInput"
+                      rows="1"
+                      placeholder="NexaAI'ye bir şey sor..."
+                      required></textarea>
 
             <div class="composer-buttons">
+
                 <button type="button"
                         class="composer-button"
                         title="Sesli mesaj">
+
                     <i class="bi bi-mic"></i>
+
                 </button>
 
                 <button type="submit"
-                        class="composer-button"
+                        class="composer-button send-button"
                         title="Gönder">
+
                     <i class="bi bi-send-fill"></i>
+
                 </button>
+
             </div>
 
         </form>
+
     </div>
 
 </div>
+
+<script>
+    const chatContent = document.getElementById("chatContent");
+    const messageInput = document.getElementById("messageInput");
+
+    if (chatContent) {
+        chatContent.scrollTop = chatContent.scrollHeight;
+    }
+
+    if (messageInput) {
+        messageInput.addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height =
+                Math.min(this.scrollHeight, 150) + "px";
+        });
+    }
+</script>

@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using NexaAI.Application.Features.Auth.Commands;
 using NexaAI.Application.Interfaces.Repositories;
 using NexaAI.Application.Interfaces.Services;
+using NexaAI.Infrastructure.AI;
 using NexaAI.Infrastructure.Authentication;
 using NexaAI.Infrastructure.Identity;
 using NexaAI.Infrastructure.Persistence.Context;
@@ -114,6 +115,7 @@ builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IAIService, AIService>();
 // Program.cs
 
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();

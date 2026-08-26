@@ -59,11 +59,11 @@
         <form asp-controller="Conversation"
               asp-action="Delete"
               method="post"
+              asp-route-id="@item.Id"
               onsubmit="return confirm('Bu sohbeti silmek istediğine emin misin?');">
 
-            <input type="hidden"
-                   name="conversationId"
-                   value="@item.Id" />
+            @Html.AntiForgeryToken()
+            
 
             <button type="submit"
                     class="conversation-delete"

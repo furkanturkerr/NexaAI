@@ -38,4 +38,27 @@ public class ConversationController : Controller
         
         return RedirectToAction("Index", "Default");
     }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var token = User.FindFirst("access_token")?.Value;
+        
+        if (string.IsNullOrWhiteSpace(token))
+            return Unauthorized();
+        
+        var client = _httpClientFactory.CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        
+        var response = await client.DeleteAsync($"http://localhost:5015/api/Conversation/{id}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            ModelState.AddModelError("", "Sohbet silinmedi!");
+        }
+        
+        return RedirectToAction("Index", "Default");
+    }
 }
