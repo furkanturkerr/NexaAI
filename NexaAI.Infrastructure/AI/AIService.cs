@@ -24,7 +24,7 @@ public class AIService : IAIService
         _client = new ChatClient(model, apiKey);
     }
 
-    public async Task<string> GetResponseAsync(
+    public async IAsyncEnumerable<string> GetResponseStreamAsync(
         List<Message> messages,
         CancellationToken cancellationToken = default)
     {
@@ -65,6 +65,7 @@ public class AIService : IAIService
             )
         };
 
+        // DB'deki sohbet geçmişini OpenAI mesajlarına dönüştürüyoruz.
         foreach (var message in messages)
         {
             if (message.Role == MessageRole.User)
@@ -79,11 +80,21 @@ public class AIService : IAIService
             }
         }
 
-        ChatCompletion completion =
-            await _client.CompleteChatAsync(
-                chatMessages,
-                cancellationToken: cancellationToken);
+        // Artık tam cevabı beklemiyoruz.
+        // OpenAI cevabı parça parça stream olarak gönderiyor.
+        var completionUpdates = _client.CompleteChatStreamingAsync(chatMessages, cancellationToken: cancellationToken);
 
-        return completion.Content[0].Text;
+        // OpenAI'dan yeni parça geldikçe çalışır.
+        await foreach (var update in completionUpdates)
+        {
+            foreach (var content in update.ContentUpdate)
+            {
+                if (!string.IsNullOrEmpty(content.Text))
+                {
+                    // Tam cevabı beklemeden parçayı dışarı veriyoruz.
+                    yield return content.Text;
+                }
+            }
+        }
     }
 }

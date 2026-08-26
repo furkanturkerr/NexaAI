@@ -26,9 +26,13 @@ public class MessageController : Controller
 
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        await client.PostAsJsonAsync("http://localhost:5015/api/Messages", dto);
+        var response = await client.PostAsJsonAsync("http://localhost:5015/api/Messages", dto);
 
-        return RedirectToAction("Index", "Default",
-            new { conversationId = dto.ConversationId });
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode((int)response.StatusCode);
+        }
+        
+        return Ok();
     }
 }

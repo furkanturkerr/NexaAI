@@ -4,7 +4,5 @@ namespace NexaAI.Application.Interfaces.Services;
 
 public interface IAIService
 {
-    Task<string> GetResponseAsync(
-        List<Message> messages,
-        CancellationToken cancellationToken = default);
+    IAsyncEnumerable<string> GetResponseStreamAsync(List<Message> messages, CancellationToken cancellationToken = default);
 }

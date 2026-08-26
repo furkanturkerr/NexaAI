@@ -12,7 +12,9 @@ using NexaAI.Infrastructure.Authentication;
 using NexaAI.Infrastructure.Identity;
 using NexaAI.Infrastructure.Persistence.Context;
 using NexaAI.Infrastructure.Persistence.Repositories;
+using NexaAI.WebApi.Hubs;
 using NexaAI.WebApi.Middlewares;
+using NexaAI.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("WebUICors", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5068")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
 });
 
 builder.Services.AddSwaggerGen(options =>
@@ -69,11 +85,9 @@ var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services
     .AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
-        options.DefaultChallengeScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options =>
     {
@@ -87,10 +101,26 @@ builder.Services
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
 
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!)),
 
             ClockSkew = TimeSpan.Zero
+        };
+        
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/chat"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -100,8 +130,7 @@ builder.Services.AddAuthorization();
 // MediatR
 builder.Services.AddMediatR(config =>
 {
-    config.RegisterServicesFromAssembly(
-        typeof(RegisterCommand).Assembly);
+    config.RegisterServicesFromAssembly(typeof(RegisterCommand).Assembly);
 });
 
 
@@ -116,6 +145,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IAIService, AIService>();
+builder.Services.AddScoped<IRealtimeService, SignalRService>();
 // Program.cs
 
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
@@ -134,13 +164,14 @@ app.UseHttpsRedirection();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseCors("WebUICors");
 
-// Sıra önemli
 app.UseAuthentication();
 app.UseAuthorization();
 
 
-// Controller endpointlerini açar
 app.MapControllers();
+
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

@@ -1,3 +1,4 @@
+using System.Text;
 using MediatR;
 using NexaAI.Application.Features.Message.Commands;
 using NexaAI.Application.Interfaces.Repositories;
@@ -11,12 +12,14 @@ public class CreateMessageCommandHandler : IRequestHandler<CreateMessageCommand>
     private readonly IMessageRepository _messageRepository;
     private readonly IConversationRepository _conversationRepository;
     private readonly IAIService _aiService;
+    private readonly IRealtimeService _realtimeService;
 
-    public CreateMessageCommandHandler(IMessageRepository messageRepository, IConversationRepository conversationRepository, IAIService aiService)
+    public CreateMessageCommandHandler(IMessageRepository messageRepository, IConversationRepository conversationRepository, IAIService aiService, IRealtimeService realtimeService)
     {
         _messageRepository = messageRepository;
         _conversationRepository = conversationRepository;
         _aiService = aiService;
+        _realtimeService = realtimeService;
     }
 
     public async Task Handle(CreateMessageCommand request, CancellationToken cancellationToken)
@@ -40,13 +43,23 @@ public class CreateMessageCommandHandler : IRequestHandler<CreateMessageCommand>
         await _messageRepository.CreateAsync(message);
         
         var messages = await _messageRepository.GetMessagesAsync(request.ConversationId);
+        
+        //// OpenAI'dan parça parça gelen cevabı
+        var fullResponse = new StringBuilder();
 
-        var aiResponse = await _aiService.GetResponseAsync(messages);
+        await foreach (var chunk in _aiService.GetResponseStreamAsync(messages, cancellationToken))
+        {
+            // hepsi sırayla fullResponse'a eklenir.
+            fullResponse.Append(chunk);
+            
+            // Aynı parçayı anında kullanıcının browser'ına gönderiyoruz.
+            await _realtimeService.SendAIChunkAsync(request.UserId, request.ConversationId, chunk, cancellationToken);
+        }
 
         var assistantMessage = new Domain.Entities.Message
         {
             ConversationId = request.ConversationId,
-            Content = aiResponse,
+            Content = fullResponse.ToString(),
             Role = MessageRole.Assistant,
             CreatedAt = DateTime.UtcNow
         };
@@ -56,5 +69,8 @@ public class CreateMessageCommandHandler : IRequestHandler<CreateMessageCommand>
         conversation.UpdatedAt = DateTime.UtcNow;
         
         await _conversationRepository.UpdateAsync(conversation);
+        
+        // Browser'a stream'in bittiğini bildiriyoruz.
+        await _realtimeService.SendAICompletedAsync(request.UserId, request.ConversationId, cancellationToken);
     }
 }

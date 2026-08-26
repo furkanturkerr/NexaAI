@@ -11,7 +11,6 @@
 <div class="conversation-view">
 
     <div class="conversation-heading">
-
         <div class="conversation-heading-label">
             Sohbet
         </div>
@@ -19,44 +18,41 @@
         <h2 class="conversation-title">
             @Model.Title
         </h2>
-
     </div>
 
-    <div class="chat-content"
-         id="chatContent">
+    <div class="chat-content" id="chatContent">
 
-        @if (Model.Messages.Any())
-        {
-            <div class="messages"
-                 id="messages">
+        <div class="messages"
+             id="messages"
+             data-conversation-id="@Model.Id">
 
-                @foreach (var message in Model.Messages)
+            @foreach (var message in Model.Messages)
+            {
+                if (message.Role == 1)
                 {
-                    if (message.Role == 1)
-                    {
-                        <div class="message user">
-                            <div class="user-message-content">@message.Content</div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="message ai">
-                            <div class="ai-content">
-                                @Html.Raw(
-                                    Markdown.ToHtml(
-                                        message.Content,
-                                        markdownPipeline))
-                            </div>
-                        </div>
-                    }
+                    <div class="message user">
+                        <div class="user-message-content">@message.Content</div>
+                    </div>
                 }
+                else
+                {
+                    <div class="message ai">
+                        <div class="ai-content">
+                            @Html.Raw(Markdown.ToHtml(message.Content, markdownPipeline))
+                        </div>
+                    </div>
+                }
+            }
 
-            </div>
-        }
-        else
+        </div>
+
+        @if (!Model.Messages.Any())
         {
-            <div class="empty-conversation">
+            <div class="empty-conversation"
+                 id="emptyConversation">
+
                 Bu sohbette henüz gösterilecek mesaj yok.
+
             </div>
         }
 
@@ -67,10 +63,14 @@
         <form asp-controller="Message"
               asp-action="Send"
               method="post"
-              class="composer">
+              class="composer"
+              id="messageForm">
+
+            @Html.AntiForgeryToken()
 
             <input type="hidden"
                    name="ConversationId"
+                   id="conversationId"
                    value="@Model.Id"/>
 
             <textarea name="Content"
@@ -91,6 +91,7 @@
 
                 <button type="submit"
                         class="composer-button send-button"
+                        id="sendButton"
                         title="Gönder">
 
                     <i class="bi bi-send-fill"></i>
@@ -104,20 +105,3 @@
     </div>
 
 </div>
-
-<script>
-    const chatContent = document.getElementById("chatContent");
-    const messageInput = document.getElementById("messageInput");
-
-    if (chatContent) {
-        chatContent.scrollTop = chatContent.scrollHeight;
-    }
-
-    if (messageInput) {
-        messageInput.addEventListener("input", function () {
-            this.style.height = "auto";
-            this.style.height =
-                Math.min(this.scrollHeight, 150) + "px";
-        });
-    }
-</script>
