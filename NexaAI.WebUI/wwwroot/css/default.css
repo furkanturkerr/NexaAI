@@ -748,12 +748,49 @@ textarea {
 
 .mic-recording {
     background: var(--danger);
-    color: #ffffff;
+    color: #fff;
 }
+
 
 .mic-recording:hover {
     background: var(--danger);
-    color: #ffffff;
+    color: #fff;
+}
+
+.message.ai {
+    position: relative;
+}
+
+.tts-button {
+    width: 32px;
+    height: 32px;
+
+    margin-top: 8px;
+    padding: 0;
+
+    border: 0;
+    border-radius: 7px;
+
+    background: transparent;
+    color: var(--text-muted);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    font-size: 15px;
+}
+
+.tts-button:hover {
+    background: var(--surface-soft);
+    color: var(--text);
+}
+
+.tts-button:disabled {
+    opacity: .45;
+    cursor: wait;
 }
 
 .mic-transcribing {

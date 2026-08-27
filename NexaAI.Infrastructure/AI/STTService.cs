@@ -1,5 +1,3 @@
-// NexaAI.Infrastructure/AI/STTService.cs
-
 using Microsoft.Extensions.Configuration;
 using NexaAI.Application.Interfaces.Services;
 using OpenAI.Audio;

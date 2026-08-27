@@ -838,86 +838,263 @@
         }
     );
 
-    const micButton = document.getElementById("micButton");
+    const micButton =
+        document.getElementById("micButton");
 
-    micButton.addEventListener("click", async function () {
+    let recorder = null;
+    let stream = null;
+    let chunks = [];
+    let isRecording = false;
 
-        const stream =
-            await navigator.mediaDevices.getUserMedia({
-                audio: true
-            });
+    micButton.addEventListener(
+        "click",
+        async function () {
 
-        const recorder =
-            new MediaRecorder(stream);
+            if (!isRecording) {
 
-        const chunks = [];
+                stream =
+                    await navigator.mediaDevices
+                        .getUserMedia({
+                            audio: true
+                        });
 
-        recorder.ondataavailable = function (event) {
-            chunks.push(event.data);
-        };
+                recorder =
+                    new MediaRecorder(stream);
 
-        recorder.onstop = async function () {
+                chunks = [];
 
-            stream
-                .getTracks()
-                .forEach(track => track.stop());
+                recorder.ondataavailable =
+                    function (event) {
 
-            const audioBlob =
-                new Blob(
-                    chunks,
-                    { type: recorder.mimeType }
+                        if (event.data.size > 0) {
+                            chunks.push(event.data);
+                        }
+                    };
+
+                recorder.onstop =
+                    async function () {
+
+                        stream
+                            .getTracks()
+                            .forEach(
+                                track => track.stop()
+                            );
+
+                        const audioBlob =
+                            new Blob(
+                                chunks,
+                                {
+                                    type: recorder.mimeType
+                                });
+
+                        const formData =
+                            new FormData();
+
+                        formData.append(
+                            "audio",
+                            audioBlob,
+                            "recording.webm"
+                        );
+
+                        const token =
+                            document.querySelector(
+                                'input[name="__RequestVerificationToken"]'
+                            )?.value;
+
+                        if (token) {
+                            formData.append(
+                                "__RequestVerificationToken",
+                                token
+                            );
+                        }
+
+                        const response =
+                            await fetch(
+                                "/Speech/Transcribe",
+                                {
+                                    method: "POST",
+                                    body: formData
+                                });
+
+                        if (!response.ok) {
+                            console.error(
+                                "STT işlemi başarısız."
+                            );
+
+                            return;
+                        }
+
+                        const result =
+                            await response.json();
+
+                        messageInput.value =
+                            result.text;
+
+                        messageInput.focus();
+                    };
+
+                recorder.start();
+
+                isRecording = true;
+
+                micButton.classList.add(
+                    "mic-recording"
                 );
 
-            const formData =
-                new FormData();
+                micButton.innerHTML =
+                    '<i class="bi bi-stop-fill"></i>';
 
-            formData.append(
-                "audio",
-                audioBlob,
-                "recording.webm"
-            );
+                micButton.title =
+                    "Kaydı durdur";
+            }
+            else {
+
+                if (
+                    recorder &&
+                    recorder.state === "recording"
+                ) {
+                    recorder.stop();
+                }
+
+                isRecording = false;
+
+                micButton.classList.remove(
+                    "mic-recording"
+                );
+
+                micButton.innerHTML =
+                    '<i class="bi bi-mic"></i>';
+
+                micButton.title =
+                    "Sesli mesaj";
+            }
+        });
+
+    let currentTtsAudio = null;
+    let currentTtsUrl = null;
+
+    document.addEventListener(
+        "click",
+        async function (event) {
+
+            const button =
+                event.target.closest(".tts-button");
+
+            if (!button)
+                return;
+
+            if (currentTtsAudio) {
+
+                currentTtsAudio.pause();
+                currentTtsAudio.currentTime = 0;
+
+                if (currentTtsUrl) {
+                    URL.revokeObjectURL(
+                        currentTtsUrl);
+                }
+
+                currentTtsAudio = null;
+                currentTtsUrl = null;
+
+                button.innerHTML =
+                    '<i class="bi bi-volume-up"></i>';
+
+                button.title =
+                    "Sesli dinle";
+
+                return;
+            }
+
+            const message =
+                button.closest(".message.ai");
+
+            const content =
+                message.querySelector(".ai-content");
+
+            const text =
+                content.innerText.trim();
+
+            if (!text)
+                return;
+
+            button.disabled = true;
 
             const token =
                 document.querySelector(
                     'input[name="__RequestVerificationToken"]'
                 )?.value;
 
-            if (token) {
-                formData.append(
-                    "__RequestVerificationToken",
-                    token
-                );
+            try {
+
+                const response =
+                    await fetch(
+                        "/Speech/Synthesize",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                "RequestVerificationToken":
+                                token
+                            },
+
+                            body: JSON.stringify({
+                                text: text
+                            })
+                        });
+
+                if (!response.ok)
+                    throw new Error(
+                        "TTS işlemi başarısız.");
+
+                const audioBlob =
+                    await response.blob();
+
+                currentTtsUrl =
+                    URL.createObjectURL(
+                        audioBlob);
+
+                currentTtsAudio =
+                    new Audio(
+                        currentTtsUrl);
+
+                button.innerHTML =
+                    '<i class="bi bi-stop-fill"></i>';
+
+                button.title =
+                    "Sesi durdur";
+
+                currentTtsAudio.onended =
+                    function () {
+
+                        URL.revokeObjectURL(
+                            currentTtsUrl);
+
+                        currentTtsAudio = null;
+                        currentTtsUrl = null;
+
+                        button.innerHTML =
+                            '<i class="bi bi-volume-up"></i>';
+
+                        button.title =
+                            "Sesli dinle";
+                    };
+
+                await currentTtsAudio.play();
             }
+            catch (error) {
 
-            const response =
-                await fetch(
-                    "/Speech/Transcribe",
-                    {
-                        method: "POST",
-                        body: formData
-                    });
-
-            if (!response.ok) {
-                console.error("STT işlemi başarısız.");
-                return;
+                console.error(
+                    "TTS hatası:",
+                    error);
             }
+            finally {
 
-            const result =
-                await response.json();
-
-            messageInput.value =
-                result.text;
-
-            messageInput.focus();
-        };
-
-        recorder.start();
-
-        setTimeout(
-            () => recorder.stop(),
-            5000
-        );
-    });
+                button.disabled = false;
+            }
+        });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

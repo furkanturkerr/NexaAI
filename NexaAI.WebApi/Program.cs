@@ -148,6 +148,7 @@ builder.Services.AddScoped<IAIService, AIService>();
 builder.Services.AddScoped<IRealtimeService, SignalRService>();
 builder.Services.AddScoped<ISTTService, STTService>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
+builder.Services.AddHttpClient<ITTSService, TTSService>();
 
 var app = builder.Build();
 

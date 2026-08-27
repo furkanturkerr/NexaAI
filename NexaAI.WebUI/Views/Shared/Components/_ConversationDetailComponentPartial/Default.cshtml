@@ -37,9 +37,17 @@
                 else
                 {
                     <div class="message ai">
+
                         <div class="ai-content">
                             @Html.Raw(Markdown.ToHtml(message.Content, markdownPipeline))
                         </div>
+
+                        <button type="button"
+                                class="tts-button"
+                                title="Sesli dinle">
+                            <i class="bi bi-volume-up"></i>
+                        </button>
+
                     </div>
                 }
             }

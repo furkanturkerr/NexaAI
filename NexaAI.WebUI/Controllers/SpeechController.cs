@@ -70,4 +70,34 @@ public class SpeechController : Controller
 
         return Ok(result);
     }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Synthesize([FromBody] SynthesizeSpeechRequestDto dto, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Text))
+            return BadRequest();
+
+        var token =
+            User.FindFirst("access_token")?.Value;
+
+        if (string.IsNullOrWhiteSpace(token))
+            return Unauthorized();
+
+        var client = _httpClientFactory.CreateClient();
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await client.PostAsJsonAsync("http://localhost:5015/api/Speech/synthesize", dto, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode(
+                (int)response.StatusCode);
+        }
+
+        var audio = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+
+        return File(audio, "audio/mpeg");
+    }
 }
