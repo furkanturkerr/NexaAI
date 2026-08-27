@@ -837,6 +837,87 @@
                 "";
         }
     );
+
+    const micButton = document.getElementById("micButton");
+
+    micButton.addEventListener("click", async function () {
+
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
+                audio: true
+            });
+
+        const recorder =
+            new MediaRecorder(stream);
+
+        const chunks = [];
+
+        recorder.ondataavailable = function (event) {
+            chunks.push(event.data);
+        };
+
+        recorder.onstop = async function () {
+
+            stream
+                .getTracks()
+                .forEach(track => track.stop());
+
+            const audioBlob =
+                new Blob(
+                    chunks,
+                    { type: recorder.mimeType }
+                );
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "audio",
+                audioBlob,
+                "recording.webm"
+            );
+
+            const token =
+                document.querySelector(
+                    'input[name="__RequestVerificationToken"]'
+                )?.value;
+
+            if (token) {
+                formData.append(
+                    "__RequestVerificationToken",
+                    token
+                );
+            }
+
+            const response =
+                await fetch(
+                    "/Speech/Transcribe",
+                    {
+                        method: "POST",
+                        body: formData
+                    });
+
+            if (!response.ok) {
+                console.error("STT işlemi başarısız.");
+                return;
+            }
+
+            const result =
+                await response.json();
+
+            messageInput.value =
+                result.text;
+
+            messageInput.focus();
+        };
+
+        recorder.start();
+
+        setTimeout(
+            () => recorder.stop(),
+            5000
+        );
+    });
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

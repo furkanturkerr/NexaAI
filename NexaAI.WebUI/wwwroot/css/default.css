@@ -746,6 +746,43 @@ textarea {
     border-bottom: 1px solid var(--soft-border);
 }
 
+.mic-recording {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+.mic-recording:hover {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+.mic-transcribing {
+    opacity: .55;
+    cursor: wait;
+}
+
+.voice-status {
+    position: absolute;
+    bottom: 92px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    padding: 7px 12px;
+
+    border: 1px solid var(--soft-border);
+    border-radius: 8px;
+
+    background: var(--surface);
+    color: var(--text-soft);
+
+    box-shadow: 0 8px 25px var(--shadow);
+
+    font-size: 11px;
+
+    z-index: 30;
+}
+
 .conversation-heading-label {
     margin-bottom: 4px;
 

@@ -146,11 +146,8 @@ builder.Services.AddScoped<IGoogleAuthService, GoogleAuthService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IAIService, AIService>();
 builder.Services.AddScoped<IRealtimeService, SignalRService>();
-// Program.cs
-
+builder.Services.AddScoped<ISTTService, STTService>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
-
-
 
 var app = builder.Build();
 
