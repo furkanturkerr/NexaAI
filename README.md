@@ -4,10 +4,6 @@
 
 ### Gerçek Zamanlı AI Sohbet ve Sesli Etkileşim Platformu
 
-NexaAI; kullanıcıların yapay zekâ ile gerçek zamanlı sohbet edebildiği,  
-konuşma geçmişini koruyabildiği, sesli mesajlarını metne dönüştürebildiği  
-ve AI yanıtlarını sesli olarak dinleyebildiği ASP.NET Core tabanlı bir AI asistan uygulamasıdır.
-
 <br/>
 
 <img src="https://img.shields.io/badge/.NET-ASP.NET_Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" />
@@ -56,36 +52,6 @@ Uygulamada;
 - AI yanıtlarını sesli dinleme
 
 tek bir yapı içerisinde birlikte çalışmaktadır.
-
-Frontend uygulaması veritabanına veya AI servislerine doğrudan erişmez. **ASP.NET Core MVC WebUI**, backend işlemlerini **ASP.NET Core Web API** üzerinden gerçekleştirir.
-
----
-
-## 🚀 Öne Çıkan Özellikler
-
-- 🤖 OpenAI destekli AI sohbet sistemi
-- ⚡ SignalR ile gerçek zamanlı AI response streaming
-- 💬 Conversation bazlı sohbet yönetimi
-- 🧠 Önceki mesajları kullanarak konuşma bağlamını koruma
-- 🗂️ Conversation ve Message kayıtlarını PostgreSQL üzerinde saklama
-- 📝 İlk mesajdan sohbet başlığı oluşturma
-- 🗑️ Conversation bazlı soft delete
-- 🎙️ Mikrofon ile ses kaydı alma
-- 📝 OpenAI Speech-to-Text ile sesi metne dönüştürme
-- 🔊 OpenAI Text-to-Speech ile AI yanıtlarını seslendirme
-- ⏯️ Ses oynatma ve durdurma kontrolleri
-- 🔐 ASP.NET Core Identity ile kullanıcı yönetimi
-- 🔑 JWT Authentication
-- 🍪 WebUI tarafında Cookie Authentication
-- 👤 Claims tabanlı kullanıcı kimliği yönetimi
-- 🔵 Google OAuth ile giriş
-- 🧩 CQRS ve MediatR
-- 🏗️ Clean Architecture
-- ⚠️ Merkezi exception middleware
-- 📝 Markdown destekli AI yanıtları
-- 💻 Kod bloklarının formatlı gösterimi
-- 🌙 Dark / Light tema desteği
-- 📱 Responsive kullanıcı arayüzü
 
 ---
 
@@ -180,16 +146,6 @@ Browser
 
 Kullanıcı mesajı arayüzde anında gösterilir.
 
-AI ilk cevap parçasını üretmeden önce kullanıcıya:
-
-```text
-Düşünüyor...
-```
-
-durumu gösterilir.
-
-İlk response parçası geldiğinde bu durum kaldırılır ve cevap ekrana canlı olarak yazılmaya başlanır.
-
 Streaming sırasında gelen parçalar tek tek veritabanına kaydedilmez. AI cevabı tamamlandığında bütün response tek bir **Assistant Message** olarak saklanır.
 
 ---
@@ -265,34 +221,6 @@ Assistant → 2
 ```
 
 `ConversationId`, aynı sohbet içerisindeki soru ve cevapların ortak oturum kimliği olarak kullanılır.
-
----
-
-## 📝 İlk Mesajdan Sohbet Oluşturma
-
-Kullanıcı yeni bir sohbet başlatırken ayrıca başlık girmek zorunda değildir.
-
-Ana ekranda doğrudan ilk sorusunu yazar.
-
-```text
-Ana Sayfa
-    ↓
-İlk Soruyu Yaz
-    ↓
-Conversation Oluştur
-    ↓
-ConversationId
-    ↓
-Sohbet Ekranına Geç
-    ↓
-İlk Mesajı Gönder
-    ↓
-AI Streaming Başlasın
-```
-
-Conversation oluşturulduktan sonra kullanıcı sohbet ekranına yönlendirilir ve ilk mesaj normal sohbet akışı üzerinden gönderilir.
-
-Böylece ilk mesaj da sonraki mesajlarla aynı SignalR ve streaming mekanizmasını kullanır.
 
 ---
 
@@ -576,31 +504,6 @@ Raw HTML işleme kapalı tutularak AI çıktısının doğrudan HTML çalıştı
 
 ## 📸 Proje Görselleri
 
-Görseller repository'e eklendikten sonra bu bölümde kullanılabilir.
-
-### 🔐 Login & Register
-
-### 🏠 Yeni Sohbet
-
-### 🤖 AI Sohbet
-
-### 🎙️ Speech-to-Text
-
-### 🔊 Text-to-Speech
-
----
-
-## 🎬 Demo
-
-Demo içerisinde;
-
-- yeni sohbet oluşturma,
-- AI response streaming,
-- konuşma hafızası,
-- Speech-to-Text,
-- Text-to-Speech
-
-akışları birlikte gösterilmektedir.
 
 ---
 
