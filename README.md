@@ -37,7 +37,7 @@
 Proje yalnızca bir AI servisine soru gönderip cevap alan basit bir chatbot olarak geliştirilmedi. Kullanıcı kimlik doğrulamasından konuşma oturumlarının veritabanında saklanmasına, gerçek zamanlı response streaming yapısından Speech-to-Text ve Text-to-Speech entegrasyonlarına kadar birbirine bağlı bir sohbet deneyimi oluşturuldu.
 
 <div align="center">
-  <img src="./NexaAI.WebUI/wwwroot/2026-08-28%2017-12-35%20%283%29.gif" alt="NexaAI Demo" width="100%">
+  <img src="https://github.com/furkanturkerr/NexaAI/blob/main/NexaAI.WebUI/wwwroot/images/nexaAI.gif" alt="NexaAI Demo" width="100%">
 </div>
 
 Uygulamada;
@@ -503,7 +503,21 @@ Raw HTML işleme kapalı tutularak AI çıktısının doğrudan HTML çalıştı
 ---
 
 ## 📸 Proje Görselleri
-
+<p align="center">
+  <img src="https://github.com/furkanturkerr/NexaAI/blob/main/NexaAI.WebUI/wwwroot/images/login.png" />
+</p>
+<p align="center">
+  <img src="https://github.com/furkanturkerr/NexaAI/blob/main/NexaAI.WebUI/wwwroot/images/register.png" />
+</p>
+<p align="center">
+  <img src="https://github.com/furkanturkerr/NexaAI/blob/main/NexaAI.WebUI/wwwroot/images/nexa-1.png" />
+</p>
+<p align="center">
+  <img src="https://github.com/furkanturkerr/NexaAI/blob/main/NexaAI.WebUI/wwwroot/images/nexa-2.png" />
+</p>
+<p align="center">
+  <img src="https://github.com/furkanturkerr/NexaAI/blob/main/NexaAI.WebUI/wwwroot/images/nexa-3.png" />
+</p>
 
 ---
 
