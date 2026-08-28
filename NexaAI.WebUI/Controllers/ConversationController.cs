@@ -38,6 +38,35 @@ public class ConversationController : Controller
         
         return RedirectToAction("Index", "Default");
     }
+    
+    [HttpPost]
+    public async Task<IActionResult> Start(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+            return BadRequest();
+
+        var token = User.FindFirst("access_token")?.Value;
+
+        if (string.IsNullOrWhiteSpace(token))
+            return Unauthorized();
+
+        var client = _httpClientFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        var response = await client.PostAsJsonAsync(
+            "http://localhost:5015/api/Conversation",
+            new { Title = content });
+
+        if (!response.IsSuccessStatusCode)
+            return StatusCode((int)response.StatusCode);
+
+        var conversation = await response.Content.ReadFromJsonAsync<CreateConversationResultDto>();
+
+        if (conversation == null)
+            return StatusCode(500);
+
+        return Ok(new { conversationId = conversation.Id });
+    }
 
     [HttpPost]
     [Authorize]

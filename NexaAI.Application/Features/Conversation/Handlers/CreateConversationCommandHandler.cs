@@ -1,10 +1,11 @@
 using MediatR;
 using NexaAI.Application.Features.Conversation.Commands;
+using NexaAI.Application.Features.Conversation.Results;
 using NexaAI.Application.Interfaces.Repositories;
 
 namespace NexaAI.Application.Features.Conversation.Handlers;
 
-public class CreateConversationCommandHandler : IRequestHandler<CreateConversationCommand>
+public class CreateConversationCommandHandler : IRequestHandler<CreateConversationCommand, CreateConversationResult>
 {
     private readonly IConversationRepository _conversationRepository;
 
@@ -13,7 +14,7 @@ public class CreateConversationCommandHandler : IRequestHandler<CreateConversati
         _conversationRepository = conversationRepository;
     }
 
-    public async Task Handle(CreateConversationCommand request, CancellationToken cancellationToken)
+    public async Task<CreateConversationResult>  Handle(CreateConversationCommand request, CancellationToken cancellationToken)
     {
         var conversation = new Domain.Entities.Conversation
         {
@@ -25,5 +26,11 @@ public class CreateConversationCommandHandler : IRequestHandler<CreateConversati
         };
 
         await _conversationRepository.CreateAsync(conversation);
+        
+        return new CreateConversationResult
+        {
+            Id = conversation.Id,
+            Title = conversation.Title
+        };
     }
 }

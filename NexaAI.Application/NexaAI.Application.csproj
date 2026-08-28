@@ -7,11 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Mappings\" />
-      <Folder Include="Validators\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\NexaAI.Domain\NexaAI.Domain.csproj" />
     </ItemGroup>
 

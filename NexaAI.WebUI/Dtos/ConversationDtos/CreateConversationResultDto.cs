@@ -1,8 +1,7 @@
 namespace NexaAI.WebUI.Dtos.ConversationDtos;
 
-public class ResultConversationDto
+public class CreateConversationResultDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public DateTime UpdatedAt { get; set; }
 }

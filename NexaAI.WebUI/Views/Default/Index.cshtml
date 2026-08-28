@@ -1,119 +1,55 @@
+@using System.Security.Claims
+
 @{
     Layout = null;
-
     Guid? selectedConversationId = ViewBag.ConversationId is Guid id ? id : null;
-    
     var accessToken = User.FindFirst("access_token")?.Value;
+
+    var name = User.FindFirst(ClaimTypes.Name)?.Value ?? "";
+    var surname = User.FindFirst(ClaimTypes.Surname)?.Value ?? "";
+    var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
+
+    var fullName = $"{name} {surname}".Trim();
+    var initials = $"{(string.IsNullOrWhiteSpace(name) ? "" : name[0])}{(string.IsNullOrWhiteSpace(surname) ? "" : surname[0])}".ToUpper();
 }
 
 <!DOCTYPE html>
 <html lang="tr" data-theme="light">
-
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>NexaAI</title>
 
-    <script>
-        try {
-            const savedTheme = localStorage.getItem("nexa-theme");
+    <link rel="icon" type="image/svg+xml" href="/images/nexa-icon.svg?v=2"/>
+    <script src="~/js/theme-init.js" asp-append-version="true"></script>
 
-            document.documentElement.dataset.theme =
-                savedTheme === "dark"
-                    ? "dark"
-                    : "light";
-        } catch (_) {
-        }
-    </script>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-          rel="stylesheet"/>
-
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
-
-    <link rel="stylesheet" href="~/css/default.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <link rel="stylesheet" href="~/css/default.css" asp-append-version="true"/>
 </head>
 
-<body>
+<body data-signalr-token="@accessToken">
 
 <div class="app">
 
     <aside class="sidebar">
 
         <div class="sidebar-header">
-
-            <div class="brand">
-                Nexa<span>AI</span>
-            </div>
-
+            <div class="brand">Nexa<span>AI</span></div>
         </div>
 
         <div class="sidebar-content">
 
-            <form method="post" asp-controller="Conversation" asp-action="Create" id="createConversationForm">
-
-                @Html.AntiForgeryToken()
-
-                <button type="button"
-                        class="new-chat"
-                        id="newChatButton">
-
+            <form asp-controller="Default" asp-action="Index" method="get">
+                <button type="submit" class="new-chat">
                     <i class="bi bi-plus-lg me-2"></i>
-
                     Yeni sohbet
-
                 </button>
-
-                <div class="new-chat-panel"
-                     id="newChatPanel">
-
-                    <label class="new-chat-label"
-                           for="conversationTitle">
-
-                        Sohbet başlığı
-
-                    </label>
-
-                    <input type="text"
-                           id="conversationTitle"
-                           name="Title"
-                           class="new-chat-input"
-                           placeholder="Başlık ne olsun?"
-                           maxlength="80"
-                           autocomplete="off"
-                           required/>
-
-                    <div class="new-chat-actions">
-
-                        <button type="button"
-                                class="new-chat-cancel"
-                                id="cancelChatButton">
-
-                            Vazgeç
-
-                        </button>
-
-                        <button type="submit"
-                                class="new-chat-create">
-
-                            Oluştur
-
-                        </button>
-
-                    </div>
-
-                </div>
-
             </form>
 
             @if (TempData["ConversationError"] != null)
             {
-                <div class="conversation-error">
-                    @TempData["ConversationError"]
-                </div>
+                <div class="conversation-error">@TempData["ConversationError"]</div>
             }
 
             @await Component.InvokeAsync("_DefaultMessageListComponentPartial", new { selectedConversationId })
@@ -124,38 +60,21 @@
 
             <div class="sidebar-user">
 
-                <div class="small-avatar">
-                    FT
-                </div>
+                <div class="small-avatar">@initials</div>
 
                 <div class="user-text">
-
-                    <div class="user-name">
-                        Furkan Türker
-                    </div>
-
-                    <div class="user-mail">
-                        furkan@nexa.ai
-                    </div>
-
+                    <div class="user-name">@fullName</div>
+                    <div class="user-mail">@email</div>
                 </div>
 
             </div>
 
-            <form asp-controller="Account"
-                  asp-action="Logout"
-                  method="post">
-
+            <form asp-controller="Account" asp-action="Logout" method="post">
                 @Html.AntiForgeryToken()
 
-                <button type="submit"
-                        class="logout-icon"
-                        title="Çıkış yap">
-
+                <button type="submit" class="logout-icon" title="Çıkış yap">
                     <i class="bi bi-box-arrow-right"></i>
-
                 </button>
-
             </form>
 
         </div>
@@ -168,18 +87,12 @@
 
             <div class="assistant-select">
 
-                <button type="button"
-                        class="assistant-button"
-                        id="assistantButton">
-
+                <button type="button" class="assistant-button" id="assistantButton">
                     Nexa Assistant
-
                     <i class="bi bi-chevron-down ms-1"></i>
-
                 </button>
 
-                <div class="assistant-menu"
-                     id="assistantMenu">
+                <div class="assistant-menu" id="assistantMenu">
 
                     <button type="button">
                         <i class="bi bi-stars me-2"></i>
@@ -202,84 +115,43 @@
 
             <div class="topbar-right">
 
-                <button type="button"
-                        class="top-icon"
-                        id="themeButton"
-                        title="Tema değiştir">
-
-                    <i class="bi bi-moon"
-                       id="themeIcon"></i>
-
+                <button type="button" class="top-icon" id="themeButton" title="Tema değiştir">
+                    <i class="bi bi-moon" id="themeIcon"></i>
                 </button>
 
                 <div class="profile-wrapper">
 
-                    <button type="button"
-                            class="profile-button"
-                            id="profileButton">
+                    <button type="button" class="profile-button" id="profileButton">@initials</button>
 
-                        FT
-
-                    </button>
-
-                    <div class="profile-menu"
-                         id="profileMenu">
+                    <div class="profile-menu" id="profileMenu">
 
                         <div class="profile-menu-header">
-
-                            <div class="profile-menu-name">
-                                Furkan Türker
-                            </div>
-
-                            <div class="profile-menu-mail">
-                                furkan@nexa.ai
-                            </div>
-
+                            <div class="profile-menu-name">@fullName</div>
+                            <div class="profile-menu-mail">@email</div>
                         </div>
 
-                        <button type="button"
-                                class="profile-menu-item">
-
+                        <button type="button" class="profile-menu-item">
                             <i class="bi bi-person"></i>
-
                             Profil
-
                         </button>
 
-                        <button type="button"
-                                class="profile-menu-item">
-
+                        <button type="button" class="profile-menu-item">
                             <i class="bi bi-gear"></i>
-
                             Ayarlar
-
                         </button>
 
-                        <button type="button"
-                                class="profile-menu-item"
-                                id="profileThemeButton">
-
+                        <button type="button" class="profile-menu-item" id="profileThemeButton">
                             <i class="bi bi-circle-half"></i>
-
                             Temayı değiştir
-
                         </button>
 
-                        <form asp-controller="Account"
-                              asp-action="Logout"
-                              method="post">
-
+                        <form asp-controller="Account" asp-action="Logout" method="post">
                             @Html.AntiForgeryToken()
 
-                            <button type="submit"
-                                    class="profile-menu-item logout">
-
+                            <button type="submit" class="profile-menu-item logout">
                                 <i class="bi bi-box-arrow-right"></i>
-
                                 Çıkış yap
-
                             </button>
-
                         </form>
 
                     </div>
@@ -295,27 +167,31 @@
             @if (selectedConversationId == null)
             {
                 <div class="default-home">
-
                     <div class="default-home-inner">
 
                         <div class="home-icon">
-
                             <i class="bi bi-stars"></i>
-
                         </div>
 
-                        <h1>
-                            NexaAI'ye<br/>
-                            hoş geldin.
-                        </h1>
+                        <h1>Sana nasıl yardımcı olabilirim?</h1>
 
-                        <p>
-                            Devam etmek için soldaki sohbetlerinden
-                            birini seç veya yeni bir sohbet oluştur.
-                        </p>
+                        <form asp-controller="Conversation" asp-action="Start" method="post" class="composer" id="startConversationForm">
+                            @Html.AntiForgeryToken()
+
+                            <textarea name="Content" id="messageInput" rows="1" placeholder="NexaAI'ye bir şey sor..." required></textarea>
+
+                            <div class="composer-buttons">
+                                <button type="button" class="composer-button" id="micButton" title="Sesli mesaj">
+                                    <i class="bi bi-mic"></i>
+                                </button>
+
+                                <button type="submit" class="composer-button send-button" id="sendButton" title="Gönder">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+                            </div>
+                        </form>
 
                     </div>
-
                 </div>
             }
             else
@@ -329,776 +205,11 @@
 
 </div>
 
-<script>
-    const signalRToken = '@accessToken';
-
-    const connection =
-        new signalR.HubConnectionBuilder()
-            .withUrl(
-                "http://localhost:5015/hubs/chat",
-                {
-                    accessTokenFactory: () => signalRToken
-                })
-            .withAutomaticReconnect()
-            .build();
-
-
-    const messageForm = document.getElementById("messageForm");
-
-    const messageInput = document.getElementById("messageInput");
-
-    const sendButton = document.getElementById("sendButton");
-
-    const messages = document.getElementById("messages");
-
-    const chatContent = document.getElementById("chatContent");
-
-    const emptyConversation = document.getElementById("emptyConversation");
-
-
-    let streamingAIContent = null;
-
-    let streamFinished = false;
-    let requestFinished = false;
-    let isSending = false;
-
-
-    function scrollChatToBottom() {
-
-        if (!chatContent)
-            return;
-
-        chatContent.scrollTop = chatContent.scrollHeight;
-    }
-
-
-    function getCurrentConversationId() {
-
-        if (!messages)
-            return null;
-
-        return messages.dataset.conversationId;
-    }
-
-
-    function createUserMessage(content) {
-
-        if (!messages)
-            return;
-
-        const message = document.createElement("div");
-
-        message.className = "message user";
-
-        const messageContent = document.createElement("div");
-
-        messageContent.className = "user-message-content";
-
-        // textContent kullanıyoruz.
-        // Kullanıcının yazdığı HTML çalıştırılmaz.
-        messageContent.textContent =
-            content;
-
-        message.appendChild(messageContent);
-
-        messages.appendChild(message);
-
-        if (emptyConversation) {
-            emptyConversation.remove();
-        }
-
-        scrollChatToBottom();
-    }
-
-
-    function createAIMessage() {
-
-        if (!messages)
-            return null;
-
-        const message = document.createElement("div");
-
-        message.className = "message ai";
-
-        const content = document.createElement("div");
-
-        content.className =
-            "ai-streaming-content";
-
-        message.appendChild(content);
-
-        messages.appendChild(message);
-
-        scrollChatToBottom();
-
-        return content;
-    }
-
-
-    function finishRequestIfReady() {
-
-        if (streamFinished && requestFinished) {
-
-            // Stream sırasında cevabı canlı gösterdik.
-            //
-            // Stream bittikten sonra sayfayı bir kez yeniliyoruz.
-            // Böylece DB'deki tam Markdown cevap
-            // Markdig tarafından düzgün render ediliyor.
-            window.location.reload();
-        }
-    }
-
-
-    connection.on(
-        "ReceiveAIChunk",
-        function (
-            conversationId,
-            chunk
-        ) {
-
-            const currentConversationId = getCurrentConversationId();
-
-            if (!currentConversationId)
-                return;
-
-            if (
-                currentConversationId.toLowerCase()
-                !==
-                conversationId.toLowerCase()
-            ) {
-                return;
-            }
-
-            // İlk parça geldiyse
-            // yeni AI mesaj alanı oluştur.
-            if (!streamingAIContent) {
-
-                streamingAIContent = createAIMessage();
-            }
-
-            if (!streamingAIContent)
-                return;
-
-            // ÖNEMLİ:
-            // Gelen chunk mevcut içeriğin
-            // sonuna ekleniyor.
-            streamingAIContent.textContent += chunk;
-
-            scrollChatToBottom();
-        });
-
-
-    connection.on(
-        "ReceiveAICompleted",
-        function (conversationId) {
-
-            const currentConversationId = getCurrentConversationId();
-
-            if (!currentConversationId)
-                return;
-
-            if (
-                currentConversationId.toLowerCase()
-                !==
-                conversationId.toLowerCase()
-            ) {
-                return;
-            }
-
-            console.log(
-                "AI cevabı tamamlandı."
-            );
-
-            streamFinished = true;
-
-            finishRequestIfReady();
-        });
-
-
-    async function startSignalR() {
-
-        try {
-
-            await connection.start();
-
-            console.log(
-                "SignalR bağlantısı kuruldu."
-            );
-
-            console.log(
-                "ConnectionId:",
-                connection.connectionId
-            );
-        }
-        catch (error) {
-
-            console.error(
-                "SignalR bağlantı hatası:",
-                error
-            );
-        }
-    }
-
-
-    connection.onreconnecting(
-        error => {
-
-            console.log(
-                "SignalR yeniden bağlanıyor...",
-                error
-            );
-        });
-
-
-    connection.onreconnected(
-        connectionId => {
-
-            console.log(
-                "SignalR tekrar bağlandı."
-            );
-
-            console.log(
-                "ConnectionId:",
-                connectionId
-            );
-        });
-
-
-    connection.onclose(
-        error => {
-
-            console.log(
-                "SignalR bağlantısı kapandı.",
-                error
-            );
-        });
-
-
-    if (messageForm) {
-
-        messageForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                // Normal form submitini durduruyoruz.
-                // Böylece sayfa yenilenmiyor.
-                event.preventDefault();
-
-
-                if (isSending)
-                    return;
-
-                const content = messageInput.value.trim();
-
-                if (!content)
-                    return;
-
-                // Kullanıcının mesajını API cevabını
-                // beklemeden direkt ekranda gösteriyoruz.
-                createUserMessage(content);
-
-                const formData = new FormData(messageForm);
-                
-                isSending = true;
-
-                streamFinished = false;
-                requestFinished = false;
-                streamingAIContent = null;
-                
-                sendButton.disabled = true;
-                messageInput.disabled = true;
-                
-
-                // Kullanıcı mesajını ekrana ekledikten
-                // sonra textarea'yı temizliyoruz.
-                messageInput.value = "";
-                messageInput.style.height = "auto";
-
-
-                try {
-
-                    const response =
-                        await fetch(
-                            messageForm.action,
-                            {
-                                method: "POST",
-                                body: formData
-                            });
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            "Mesaj gönderilemedi."
-                        );
-                    }
-
-
-                    requestFinished = true;
-
-                    finishRequestIfReady();
-                }
-                catch (error) {
-
-                    console.error(
-                        "Mesaj gönderme hatası:",
-                        error
-                    );
-
-                    requestFinished = true;
-                }
-                finally {
-
-                    isSending = false;
-
-                    sendButton.disabled = false;
-                    messageInput.disabled = false;
-
-                    messageInput.focus();
-                }
-            });
-    }
-
-
-    if (messageInput) {
-
-        messageInput.addEventListener(
-            "input",
-            function () {
-
-                this.style.height =
-                    "auto";
-
-                this.style.height =
-                    Math.min(
-                        this.scrollHeight,
-                        150
-                    ) + "px";
-            });
-    }
-
-
-    scrollChatToBottom();
-
-    startSignalR();
-</script>
-
-<script>
-    const html =
-        document.documentElement;
-
-    const themeButton =
-        document.getElementById("themeButton");
-
-    const themeIcon =
-        document.getElementById("themeIcon");
-
-    const profileThemeButton =
-        document.getElementById("profileThemeButton");
-
-    const profileButton =
-        document.getElementById("profileButton");
-
-    const profileMenu =
-        document.getElementById("profileMenu");
-
-    const assistantButton =
-        document.getElementById("assistantButton");
-
-    const assistantMenu =
-        document.getElementById("assistantMenu");
-
-    const newChatButton =
-        document.getElementById("newChatButton");
-
-    const newChatPanel =
-        document.getElementById("newChatPanel");
-
-    const cancelChatButton =
-        document.getElementById("cancelChatButton");
-
-    const conversationTitleInput =
-        document.getElementById("conversationTitle");
-
-    function updateThemeIcon() {
-
-        const isDark =
-            html.dataset.theme === "dark";
-
-        themeIcon.className =
-            isDark
-                ? "bi bi-sun"
-                : "bi bi-moon";
-    }
-
-    function toggleTheme() {
-
-        const newTheme =
-            html.dataset.theme === "dark"
-                ? "light"
-                : "dark";
-
-        html.dataset.theme =
-            newTheme;
-
-        localStorage.setItem(
-            "nexa-theme",
-            newTheme
-        );
-
-        updateThemeIcon();
-    }
-
-    themeButton.addEventListener(
-        "click",
-        toggleTheme
-    );
-
-    profileThemeButton.addEventListener(
-        "click",
-        toggleTheme
-    );
-
-    updateThemeIcon();
-
-    profileButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.stopPropagation();
-
-            profileMenu
-                .classList
-                .toggle("show");
-
-            assistantMenu
-                .classList
-                .remove("show");
-        }
-    );
-
-    assistantButton.addEventListener(
-        "click",
-        function (event) {
-
-            event.stopPropagation();
-
-            assistantMenu
-                .classList
-                .toggle("show");
-
-            profileMenu
-                .classList
-                .remove("show");
-        }
-    );
-
-    document.addEventListener(
-        "click",
-        function () {
-
-            profileMenu
-                .classList
-                .remove("show");
-
-            assistantMenu
-                .classList
-                .remove("show");
-        }
-    );
-
-    newChatButton.addEventListener(
-        "click",
-        function () {
-
-            newChatPanel
-                .classList
-                .toggle("show");
-
-            if (
-                newChatPanel
-                    .classList
-                    .contains("show")
-            ) {
-                conversationTitleInput.focus();
-            }
-        }
-    );
-
-    cancelChatButton.addEventListener(
-        "click",
-        function () {
-
-            newChatPanel
-                .classList
-                .remove("show");
-
-            conversationTitleInput.value =
-                "";
-        }
-    );
-
-    const micButton =
-        document.getElementById("micButton");
-
-    let recorder = null;
-    let stream = null;
-    let chunks = [];
-    let isRecording = false;
-
-    micButton.addEventListener(
-        "click",
-        async function () {
-
-            if (!isRecording) {
-
-                stream =
-                    await navigator.mediaDevices
-                        .getUserMedia({
-                            audio: true
-                        });
-
-                recorder =
-                    new MediaRecorder(stream);
-
-                chunks = [];
-
-                recorder.ondataavailable =
-                    function (event) {
-
-                        if (event.data.size > 0) {
-                            chunks.push(event.data);
-                        }
-                    };
-
-                recorder.onstop =
-                    async function () {
-
-                        stream
-                            .getTracks()
-                            .forEach(
-                                track => track.stop()
-                            );
-
-                        const audioBlob =
-                            new Blob(
-                                chunks,
-                                {
-                                    type: recorder.mimeType
-                                });
-
-                        const formData =
-                            new FormData();
-
-                        formData.append(
-                            "audio",
-                            audioBlob,
-                            "recording.webm"
-                        );
-
-                        const token =
-                            document.querySelector(
-                                'input[name="__RequestVerificationToken"]'
-                            )?.value;
-
-                        if (token) {
-                            formData.append(
-                                "__RequestVerificationToken",
-                                token
-                            );
-                        }
-
-                        const response =
-                            await fetch(
-                                "/Speech/Transcribe",
-                                {
-                                    method: "POST",
-                                    body: formData
-                                });
-
-                        if (!response.ok) {
-                            console.error(
-                                "STT işlemi başarısız."
-                            );
-
-                            return;
-                        }
-
-                        const result =
-                            await response.json();
-
-                        messageInput.value =
-                            result.text;
-
-                        messageInput.focus();
-                    };
-
-                recorder.start();
-
-                isRecording = true;
-
-                micButton.classList.add(
-                    "mic-recording"
-                );
-
-                micButton.innerHTML =
-                    '<i class="bi bi-stop-fill"></i>';
-
-                micButton.title =
-                    "Kaydı durdur";
-            }
-            else {
-
-                if (
-                    recorder &&
-                    recorder.state === "recording"
-                ) {
-                    recorder.stop();
-                }
-
-                isRecording = false;
-
-                micButton.classList.remove(
-                    "mic-recording"
-                );
-
-                micButton.innerHTML =
-                    '<i class="bi bi-mic"></i>';
-
-                micButton.title =
-                    "Sesli mesaj";
-            }
-        });
-
-    let currentTtsAudio = null;
-    let currentTtsUrl = null;
-
-    document.addEventListener(
-        "click",
-        async function (event) {
-
-            const button =
-                event.target.closest(".tts-button");
-
-            if (!button)
-                return;
-
-            if (currentTtsAudio) {
-
-                currentTtsAudio.pause();
-                currentTtsAudio.currentTime = 0;
-
-                if (currentTtsUrl) {
-                    URL.revokeObjectURL(
-                        currentTtsUrl);
-                }
-
-                currentTtsAudio = null;
-                currentTtsUrl = null;
-
-                button.innerHTML =
-                    '<i class="bi bi-volume-up"></i>';
-
-                button.title =
-                    "Sesli dinle";
-
-                return;
-            }
-
-            const message =
-                button.closest(".message.ai");
-
-            const content =
-                message.querySelector(".ai-content");
-
-            const text =
-                content.innerText.trim();
-
-            if (!text)
-                return;
-
-            button.disabled = true;
-
-            const token =
-                document.querySelector(
-                    'input[name="__RequestVerificationToken"]'
-                )?.value;
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/Speech/Synthesize",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-
-                                "RequestVerificationToken":
-                                token
-                            },
-
-                            body: JSON.stringify({
-                                text: text
-                            })
-                        });
-
-                if (!response.ok)
-                    throw new Error(
-                        "TTS işlemi başarısız.");
-
-                const audioBlob =
-                    await response.blob();
-
-                currentTtsUrl =
-                    URL.createObjectURL(
-                        audioBlob);
-
-                currentTtsAudio =
-                    new Audio(
-                        currentTtsUrl);
-
-                button.innerHTML =
-                    '<i class="bi bi-stop-fill"></i>';
-
-                button.title =
-                    "Sesi durdur";
-
-                currentTtsAudio.onended =
-                    function () {
-
-                        URL.revokeObjectURL(
-                            currentTtsUrl);
-
-                        currentTtsAudio = null;
-                        currentTtsUrl = null;
-
-                        button.innerHTML =
-                            '<i class="bi bi-volume-up"></i>';
-
-                        button.title =
-                            "Sesli dinle";
-                    };
-
-                await currentTtsAudio.play();
-            }
-            catch (error) {
-
-                console.error(
-                    "TTS hatası:",
-                    error);
-            }
-            finally {
-
-                button.disabled = false;
-            }
-        });
-</script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@microsoft/signalr@8.0.7/dist/browser/signalr.min.js"></script>
+<script src="~/js/default-ui.js" asp-append-version="true"></script>
+<script src="~/js/chat.js" asp-append-version="true"></script>
+<script src="~/js/speech.js" asp-append-version="true"></script>
 
 </body>
-
 </html>

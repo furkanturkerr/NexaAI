@@ -22,8 +22,7 @@ public class GoogleAuthService : IGoogleAuthService
     {
         try
         {
-            var clientId =
-                _configuration["Google:ClientId"];
+            var clientId = _configuration["Google:ClientId"];
 
             var settings = new GoogleJsonWebSignature.ValidationSettings
                 {
@@ -44,8 +43,7 @@ public class GoogleAuthService : IGoogleAuthService
                 };
             }
 
-            var user =
-                await _userManager.FindByEmailAsync(payload.Email);
+            var user = await _userManager.FindByEmailAsync(payload.Email);
 
             if (user == null)
             {
@@ -60,8 +58,7 @@ public class GoogleAuthService : IGoogleAuthService
                     EmailConfirmed = true
                 };
 
-                var createResult =
-                    await _userManager.CreateAsync(user);
+                var createResult = await _userManager.CreateAsync(user);
 
                 if (!createResult.Succeeded)
                 {

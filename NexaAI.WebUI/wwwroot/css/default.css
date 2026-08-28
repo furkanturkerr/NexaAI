@@ -680,7 +680,7 @@ textarea {
 
 .default-home-inner {
     width: 100%;
-    max-width: 650px;
+    max-width: 760px;
 }
 
 .home-icon {
@@ -702,13 +702,21 @@ textarea {
 }
 
 .default-home h1 {
-    margin: 0;
+    margin: 0 0 28px;
 
-    font-size: clamp(42px, 4vw, 58px);
+    font-size: clamp(40px, 3.2vw, 52px);
     font-weight: 650;
 
-    line-height: 1;
-    letter-spacing: -3px;
+    line-height: 1.05;
+    letter-spacing: -2.5px;
+
+    white-space: nowrap;
+}
+
+.thinking-message {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-style: italic;
 }
 
 .default-home p {

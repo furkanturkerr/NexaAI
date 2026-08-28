@@ -46,8 +46,8 @@ namespace NexaAI.WebApi.Controllers
             
             command.UserId = userId!;
             
-            await _mediator.Send(command);
-            return Ok();
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
